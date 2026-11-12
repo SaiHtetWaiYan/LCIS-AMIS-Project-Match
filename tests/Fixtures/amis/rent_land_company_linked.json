@@ -1,0 +1,46 @@
+{
+  "contact_id": 444,
+  "contract_type": "concession",
+  "business_type_id": 1,
+  "business_type_name": "ກະສິກຳ",
+  "contact_number": "260/ຄຊລ",
+  "contact_name": "ໂຄງການປູກກາເຟ",
+  "contact_date_start": "2025-06-15",
+  "contact_date_end": "2030-06-14",
+  "partner": [
+    "{\"company_id\":954,\"shareholding_pct\":100}"
+  ],
+  "status": "nomal",
+  "from_province_id": 16,
+  "partner_address": {
+    "province_id": 16,
+    "district_id": 1601
+  },
+  "created_at": "2025-06-20T08:00:00Z",
+  "updated_at": "2025-07-01T09:30:00Z",
+  "items": [
+    {
+      "id": 901,
+      "contact_land_id": 444,
+      "rent_detell": "ປູກກາເຟ",
+      "province_id": 16,
+      "province_name": "ຈຳປາສັກ",
+      "dristric_id": "1601",
+      "district_name": "ປາກເຊ",
+      "village": "ບ້ານໂພນສະອາດ",
+      "area": 120.5,
+      "unit": "ເຮັກຕາ"
+    },
+    {
+      "id": 902,
+      "contact_land_id": 444,
+      "rent_detell": "ໂຮງງານ",
+      "province_id": 16,
+      "dristric_id": "1601",
+      "district_name": "ປາກເຊ",
+      "village": "ບ້ານໂພນສະອາດ",
+      "area": 5000,
+      "unit": "ຕາແມັດ"
+    }
+  ]
+}

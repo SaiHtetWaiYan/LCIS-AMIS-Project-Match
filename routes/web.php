@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\SyncController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UserDeactivationController;
 use App\Http\Controllers\ProfileController;
@@ -16,6 +17,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('users', UserController::class)->except(['show', 'destroy']);
         Route::post('users/{user}/deactivation', [UserDeactivationController::class, 'store'])->name('users.deactivation.store');
         Route::delete('users/{user}/deactivation', [UserDeactivationController::class, 'destroy'])->name('users.deactivation.destroy');
+
+        Route::get('sync', [SyncController::class, 'index'])->name('sync.index');
+        Route::post('sync/{source}', [SyncController::class, 'store'])->name('sync.store');
     });
 });
 

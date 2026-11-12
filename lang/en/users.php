@@ -28,6 +28,7 @@ return [
     ],
 
     'filters' => [
+        'title' => 'Filter',
         'search' => 'Search name or email',
         'all_sides' => 'All sides',
         'all_statuses' => 'All statuses',

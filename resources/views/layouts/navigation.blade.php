@@ -1,110 +1,109 @@
-<nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-    <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
-                    </a>
-                </div>
+@php
+    $links = [
+        ['route' => 'dashboard', 'active' => 'dashboard', 'label' => __('app.nav.dashboard'), 'visible' => true],
+        ['route' => 'admin.users.index', 'active' => 'admin.users.*', 'label' => __('app.nav.users'), 'visible' => auth()->user()->can('viewAny', App\Models\User::class)],
+        ['route' => 'admin.sync.index', 'active' => 'admin.sync.*', 'label' => __('app.nav.sync'), 'visible' => auth()->user()->can('viewAny', App\Models\SyncRun::class)],
+    ];
+@endphp
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                    @can('viewAny', App\Models\User::class)
-                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
-                            {{ __('users.title') }}
-                        </x-nav-link>
-                    @endcan
-                </div>
-            </div>
+<header class="fixed top-0 inset-x-0 z-50">
+    <nav x-data="{ mobileOpen: false }" class="block w-full px-4 py-2 bg-white dark:bg-gray-800 shadow-md lg:px-8 lg:py-3">
+        <div class="container mx-auto flex flex-wrap items-center justify-between text-slate-800 dark:text-gray-100">
+            <a href="{{ route('dashboard') }}" class="mr-4 flex items-center py-1.5 text-base font-semibold text-slate-600 dark:text-gray-200">
+                <img src="{{ asset('img/logo/logo_transparent_x64.png') }}" alt="" class="h-8 w-8 dark:hidden">
+                <img src="{{ asset('img/logo/logo_white_x64.png') }}" alt="" class="hidden h-8 w-8 dark:block">
+                <span class="ml-2 whitespace-nowrap">{{ __('app.short_name') }}</span>
+            </a>
 
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <button type="button" @click="mobileOpen = ! mobileOpen" :aria-expanded="mobileOpen.toString()"
+                class="lg:hidden inline-flex items-center justify-center rounded-md border border-gray-200 dark:border-gray-600 p-2 text-slate-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                aria-label="{{ __('app.nav.toggle') }}">
+                <svg x-show="! mobileOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <svg x-show="mobileOpen" x-cloak class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <ul class="hidden lg:flex lg:flex-1 lg:items-center lg:gap-6 lg:ml-6">
+                @foreach ($links as $link)
+                    @if ($link['visible'])
+                        <li>
+                            <a href="{{ route($link['route']) }}"
+                                @class([
+                                    'flex items-center p-1 text-sm',
+                                    'font-semibold text-slate-900 dark:text-white border-b-2 border-green-500' => request()->routeIs($link['active']),
+                                    'text-slate-600 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white' => ! request()->routeIs($link['active']),
+                                ])
+                                @if (request()->routeIs($link['active'])) aria-current="page" @endif>
+                                {{ $link['label'] }}
+                            </a>
+                        </li>
+                    @endif
+                @endforeach
+            </ul>
+
+            <div class="hidden lg:flex items-center">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
-
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
+                        <button class="inline-flex items-center gap-2 rounded-full text-sm text-slate-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none">
+                            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-gray-100 dark:bg-gray-700 text-sm font-semibold text-blue-gray-500 dark:text-gray-200">
+                                {{ mb_strtoupper(mb_substr(Auth::user()->name, 0, 1)) }}
+                            </span>
+                            <span class="max-w-[12rem] truncate">{{ Auth::user()->name }}</span>
+                            <svg class="h-4 w-4 fill-current text-slate-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
                         </button>
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('users.profile.title') }}
-                        </x-dropdown-link>
-
-                        <!-- Authentication -->
+                        <div class="px-4 py-2 text-xs text-gray-500 dark:text-gray-400">{{ Auth::user()->side->label() }}</div>
+                        <x-dropdown-link :href="route('profile.edit')">{{ __('app.nav.account') }}</x-dropdown-link>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
+                            <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">
+                                {{ __('app.nav.logout') }}
                             </x-dropdown-link>
                         </form>
                     </x-slot>
                 </x-dropdown>
             </div>
-
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
-            @can('viewAny', App\Models\User::class)
-                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
-                    {{ __('users.title') }}
-                </x-responsive-nav-link>
-            @endcan
         </div>
 
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-            </div>
+        <div x-show="mobileOpen" x-transition x-cloak class="lg:hidden border-t border-gray-100 dark:border-gray-700 mt-3 pt-3">
+            <div class="container mx-auto space-y-4">
+                <ul class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2">
+                    @foreach ($links as $link)
+                        @if ($link['visible'])
+                            <li>
+                                <a href="{{ route($link['route']) }}"
+                                    @class([
+                                        'block px-4 py-2 text-sm',
+                                        'font-semibold text-slate-900 dark:text-white bg-gray-50 dark:bg-gray-700' => request()->routeIs($link['active']),
+                                        'text-slate-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700' => ! request()->routeIs($link['active']),
+                                    ])>
+                                    {{ $link['label'] }}
+                                </a>
+                            </li>
+                        @endif
+                    @endforeach
+                </ul>
 
-            <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('users.profile.title') }}
-                </x-responsive-nav-link>
-
-                <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-
-                    <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                        {{ __('Log Out') }}
-                    </x-responsive-nav-link>
-                </form>
+                <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3">
+                    <div class="flex items-center justify-between text-sm text-slate-700 dark:text-gray-300">
+                        <span class="font-medium">{{ Auth::user()->name }} · {{ Auth::user()->side->label() }}</span>
+                        <a href="{{ route('profile.edit') }}" class="rounded-md px-2 py-1 hover:bg-gray-50 dark:hover:bg-gray-700">{{ __('app.nav.account') }}</a>
+                    </div>
+                    <form method="POST" action="{{ route('logout') }}" class="mt-3">
+                        @csrf
+                        <button type="submit" class="w-full rounded-md bg-slate-100 dark:bg-gray-700 px-3 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-200 dark:hover:bg-gray-600">
+                            {{ __('app.nav.logout') }}
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
-</nav>
+    </nav>
+</header>

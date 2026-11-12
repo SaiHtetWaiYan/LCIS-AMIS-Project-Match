@@ -1,0 +1,20 @@
+{
+  "id": 3101,
+  "project_code": "AGR-2024-0012",
+  "activity_name": "ໂຄງການປູກກາເຟ ແລະ ປຸງແຕ່ງ",
+  "id_project_type": 1,
+  "project_type": "Agriculture",
+  "status": "active",
+  "id_company": 954,
+  "company_name": "ບໍລິສັດ ຮ່ວມທຶນສຳພັນໄຊ ມາຍນີ້ງ ຈຳກັດ",
+  "id_subsect": 12,
+  "subsect_name": "Coffee",
+  "id_status_neg": 3,
+  "status_neg_name": "Agreement signed",
+  "responsibleLevel": "province",
+  "responsibleProvinceId": 16,
+  "responsible_province_name": "ຈຳປາສັກ",
+  "responsibleDistrictId": 1601,
+  "responsible_district_name": "ປາກເຊ",
+  "updated_at": "2026-10-30 14:05:11"
+}

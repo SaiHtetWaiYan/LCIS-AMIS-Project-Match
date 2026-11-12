@@ -5,27 +5,27 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ isset($title) ? $title.' · ' : '' }}{{ __('app.short_name') }}</title>
+        <link rel="icon" type="image/png" href="{{ asset('img/logo/logo_transparent_x64.png') }}">
 
-        <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <body class="font-sans antialiased text-blue-gray-900 dark:text-gray-100">
+        <div class="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
             @include('layouts.navigation')
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white dark:bg-gray-800 shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
+            <main class="flex-grow pt-20 lg:pt-24 pb-12">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-10 space-y-6">
+                    <x-flash-messages />
 
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
+                    @isset($header)
+                        <div class="flex flex-wrap items-center justify-between gap-4">
+                            {{ $header }}
+                        </div>
+                    @endisset
+
+                    {{ $slot }}
+                </div>
             </main>
         </div>
     </body>

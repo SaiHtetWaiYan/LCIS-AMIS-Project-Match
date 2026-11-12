@@ -1,118 +1,116 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex items-center justify-between gap-4">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('users.title') }}
-            </h2>
-            @can('create', App\Models\User::class)
-                <a href="{{ route('admin.users.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
-                    {{ __('users.create') }}
-                </a>
-            @endcan
-        </div>
-    </x-slot>
+    <x-slot name="title">{{ __('users.title') }}</x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-4">
-            @if (session('status'))
-                <div class="px-4 py-3 rounded-md bg-green-50 dark:bg-green-900/30 text-sm text-green-800 dark:text-green-200" role="status">
-                    {{ session('status') }}
-                </div>
-            @endif
-
-            <form method="GET" action="{{ route('admin.users.index') }}" class="px-4 sm:px-0 flex flex-col sm:flex-row gap-2">
-                <label for="search" class="sr-only">{{ __('users.filters.search') }}</label>
-                <x-text-input id="search" name="search" type="search" class="w-full sm:w-72" :value="$filters['search']" :placeholder="__('users.filters.search')" />
-
-                <label for="side-filter" class="sr-only">{{ __('users.fields.side') }}</label>
-                <x-select-input id="side-filter" name="side">
+    <x-card :title="__('users.filters.title')">
+        <form method="GET" action="{{ route('admin.users.index') }}" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+                <x-input-label for="search" :value="__('users.filters.search')" />
+                <x-text-input id="search" name="search" type="search" class="mt-1 block w-full" :value="$filters['search']" />
+            </div>
+            <div>
+                <x-input-label for="side-filter" :value="__('users.fields.side')" />
+                <x-select-input id="side-filter" name="side" class="mt-1 block w-full">
                     <option value="">{{ __('users.filters.all_sides') }}</option>
                     @foreach (App\Enums\UserSide::options() as $value => $label)
                         <option value="{{ $value }}" @selected($filters['side'] === $value)>{{ $label }}</option>
                     @endforeach
                 </x-select-input>
-
-                <label for="status-filter" class="sr-only">{{ __('users.fields.status') }}</label>
-                <x-select-input id="status-filter" name="status">
+            </div>
+            <div>
+                <x-input-label for="status-filter" :value="__('users.fields.status')" />
+                <x-select-input id="status-filter" name="status" class="mt-1 block w-full">
                     <option value="">{{ __('users.filters.all_statuses') }}</option>
                     @foreach (['active', 'deactivated'] as $status)
                         <option value="{{ $status }}" @selected($filters['status'] === $status)>{{ __('users.statuses.'.$status) }}</option>
                     @endforeach
                 </x-select-input>
+            </div>
+            <div class="flex items-end gap-3">
+                <a href="{{ route('admin.users.index') }}"><x-secondary-button>{{ __('users.filters.reset') }}</x-secondary-button></a>
+                <x-primary-button>{{ __('users.filters.apply') }}</x-primary-button>
+            </div>
+        </form>
+    </x-card>
 
-                <div class="flex items-center gap-3">
-                    <x-secondary-button type="submit">{{ __('users.filters.apply') }}</x-secondary-button>
-                    <a href="{{ route('admin.users.index') }}" class="text-sm text-gray-600 dark:text-gray-400 underline">{{ __('users.filters.reset') }}</a>
-                </div>
-            </form>
+    <x-card :title="__('users.title')">
+        @can('create', App\Models\User::class)
+            <x-slot name="actions">
+                <x-link-button :href="route('admin.users.create')">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    {{ __('users.create') }}
+                </x-link-button>
+            </x-slot>
+        @endcan
 
-            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg overflow-hidden">
-                @if ($users->isEmpty())
-                    <p class="p-6 text-sm text-gray-500 dark:text-gray-400">{{ __('users.empty') }}</p>
-                @else
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                        <thead class="hidden md:table-header-group bg-gray-50 dark:bg-gray-900/50">
-                            <tr class="text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                <th scope="col" class="px-6 py-3">{{ __('users.fields.name') }}</th>
-                                <th scope="col" class="px-6 py-3">{{ __('users.fields.side') }}</th>
-                                <th scope="col" class="px-6 py-3">{{ __('users.fields.status') }}</th>
-                                <th scope="col" class="px-6 py-3"><span class="sr-only">{{ __('users.actions.edit') }}</span></th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                            @foreach ($users as $user)
-                                <tr class="block md:table-row px-4 py-3 md:p-0">
-                                    <td class="block md:table-cell md:px-6 md:py-4">
-                                        <div class="font-medium text-gray-900 dark:text-gray-100">
-                                            {{ $user->name }}
-                                            @if ($user->is(auth()->user()))
-                                                <span class="text-xs font-normal text-gray-500 dark:text-gray-400">({{ __('users.hints.you') }})</span>
-                                            @endif
-                                        </div>
-                                        <div class="text-gray-500 dark:text-gray-400 break-all">{{ $user->email }}</div>
-                                    </td>
-                                    <td class="inline-block md:table-cell mt-2 md:mt-0 md:px-6 md:py-4">
-                                        <span class="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
-                                            {{ $user->side->label() }}
-                                        </span>
-                                    </td>
-                                    <td class="inline-block md:table-cell mt-2 md:mt-0 md:px-6 md:py-4">
-                                        @if ($user->isActive())
-                                            <span class="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200">{{ __('users.statuses.active') }}</span>
-                                        @else
-                                            <span class="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200">{{ __('users.statuses.deactivated') }}</span>
-                                        @endif
-                                    </td>
-                                    <td class="block md:table-cell mt-2 md:mt-0 md:px-6 md:py-4 md:text-right">
-                                        <div class="flex md:justify-end items-center gap-4">
-                                            @can('update', $user)
-                                                <a href="{{ route('admin.users.edit', $user) }}" class="text-indigo-600 dark:text-indigo-400 hover:underline">{{ __('users.actions.edit') }}</a>
-                                            @endcan
-                                            @can('deactivate', $user)
-                                                <form method="POST" action="{{ route('admin.users.deactivation.store', $user) }}">
-                                                    @csrf
-                                                    <button type="submit" class="text-red-600 dark:text-red-400 hover:underline">{{ __('users.actions.deactivate') }}</button>
-                                                </form>
-                                            @endcan
-                                            @can('reactivate', $user)
-                                                <form method="POST" action="{{ route('admin.users.deactivation.destroy', $user) }}">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-green-700 dark:text-green-400 hover:underline">{{ __('users.actions.reactivate') }}</button>
-                                                </form>
-                                            @endcan
-                                        </div>
-                                    </td>
-                                </tr>
+        @if ($users->isEmpty())
+            <p class="p-4 text-center text-sm text-blue-gray-900 dark:text-gray-300">{{ __('users.empty') }}</p>
+        @else
+            <div class="-mx-4 sm:-mx-6 overflow-x-auto">
+                <table class="min-w-full text-left text-sm">
+                    <thead class="hidden md:table-header-group">
+                        <tr>
+                            @foreach (['#', __('users.fields.name'), __('users.fields.side'), __('users.fields.status'), ''] as $heading)
+                                <th scope="col" class="px-6 py-4 border-y border-blue-gray-100 dark:border-gray-700 bg-blue-gray-50/50 dark:bg-gray-900/40 font-normal text-blue-gray-900/70 dark:text-gray-400">{{ $heading }}</th>
                             @endforeach
-                        </tbody>
-                    </table>
-                @endif
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($users as $user)
+                            <tr class="block md:table-row px-4 py-4 md:p-0 border-b border-blue-gray-50 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700/40">
+                                <td class="hidden md:table-cell px-6 py-4 align-middle text-blue-gray-900 dark:text-gray-300">{{ $users->firstItem() + $loop->index }}</td>
+                                <td class="block md:table-cell md:px-6 md:py-4 align-middle">
+                                    <div class="font-medium text-blue-gray-900 dark:text-gray-100">
+                                        {{ $user->name }}
+                                        @if ($user->is(auth()->user()))
+                                            <span class="text-xs font-normal text-gray-500 dark:text-gray-400">({{ __('users.hints.you') }})</span>
+                                        @endif
+                                    </div>
+                                    <div class="text-gray-500 dark:text-gray-400 break-all">{{ $user->email }}</div>
+                                </td>
+                                <td class="inline-block md:table-cell mt-2 md:mt-0 md:px-6 md:py-4 align-middle">
+                                    <x-badge>{{ $user->side->label() }}</x-badge>
+                                </td>
+                                <td class="inline-block md:table-cell mt-2 md:mt-0 md:px-6 md:py-4 align-middle">
+                                    @if ($user->isActive())
+                                        <x-badge tone="green">{{ __('users.statuses.active') }}</x-badge>
+                                    @else
+                                        <x-badge tone="red">{{ __('users.statuses.deactivated') }}</x-badge>
+                                    @endif
+                                </td>
+                                <td class="block md:table-cell mt-3 md:mt-0 md:px-6 md:py-4 align-middle whitespace-nowrap">
+                                    <div class="flex flex-wrap md:justify-end items-center gap-2">
+                                        @can('update', $user)
+                                            <x-link-button variant="edit" :href="route('admin.users.edit', $user)">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931ZM16.862 4.487L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                                </svg>
+                                                {{ __('users.actions.edit') }}
+                                            </x-link-button>
+                                        @endcan
+                                        @can('deactivate', $user)
+                                            <form method="POST" action="{{ route('admin.users.deactivation.store', $user) }}">
+                                                @csrf
+                                                <button type="submit" class="inline-flex items-center rounded-md bg-red-600 py-2 px-4 text-sm text-white shadow-md hover:bg-red-700">{{ __('users.actions.deactivate') }}</button>
+                                            </form>
+                                        @endcan
+                                        @can('reactivate', $user)
+                                            <form method="POST" action="{{ route('admin.users.deactivation.destroy', $user) }}">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="inline-flex items-center rounded-md border border-green-600 bg-white dark:bg-gray-800 py-2 px-4 text-sm text-green-700 dark:text-green-400 shadow-sm hover:bg-green-50">{{ __('users.actions.reactivate') }}</button>
+                                            </form>
+                                        @endcan
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
+        @endif
 
-            <div class="px-4 sm:px-0">
-                {{ $users->links() }}
-            </div>
-        </div>
-    </div>
+        <x-pagination :paginator="$users" />
+    </x-card>
 </x-app-layout>

@@ -28,6 +28,12 @@
         <env name="DB_URL" value=""/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="LCIS_API_BASE_URL" value="https://lcis.example.test/api/v1"/>
+        <env name="LCIS_API_TOKEN" value="test-lcis-token"/>
+        <env name="LCIS_API_MIN_REQUEST_INTERVAL_MS" value="0"/>
+        <env name="AMIS_API_BASE_URL" value="https://amis.example.test/api/v1/public"/>
+        <env name="AMIS_API_KEY" value="test-amis-key"/>
+        <env name="AMIS_API_MIN_REQUEST_INTERVAL_MS" value="0"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>

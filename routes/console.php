@@ -1,8 +1,11 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use App\Jobs\SyncAmisContracts;
+use App\Jobs\SyncLcisProjects;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+/*
+| Nightly full snapshots of both sources (server time). The jobs run on the queue worker.
+*/
+Schedule::job(new SyncLcisProjects)->dailyAt('01:00')->name('sync-lcis-projects')->onOneServer();
+Schedule::job(new SyncAmisContracts)->dailyAt('01:30')->name('sync-amis-contracts')->onOneServer();

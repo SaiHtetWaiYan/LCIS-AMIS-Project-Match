@@ -1,0 +1,34 @@
+{
+  "id": 954,
+  "name_lao": "ບໍ​ລິ​ສັດ ຮ່ວມ​ທຶນ​ສຳ​ພັນ​ໄຊ ມາຍ​ນີ້ງ ຈຳ​ກັດ",
+  "name_eng": "Samphanxay Mining Co., Ltd",
+  "company_type": "company",
+  "tax_id": "637767752000",
+  "phone": "02055551234",
+  "province_id": 16,
+  "province_name": "ຈຳປາສັກ",
+  "district_id": 1601,
+  "district_name": "ປາກເຊ",
+  "village": "ໂພນສະອາດ",
+  "is_active": true,
+  "rent_land_count": 1,
+  "rent_lands": [
+    {
+      "contact_id": 444,
+      "contract_type": "concession",
+      "contact_name": "ໂຄງການປູກກາເຟ",
+      "contact_number": "260/ຄຊລ",
+      "contact_date_start": "2025-06-15",
+      "contact_date_end": "2030-06-14",
+      "status": "nomal",
+      "shareholding_pct": 60
+    },
+    {
+      "contact_id": 99999,
+      "contract_type": "rental",
+      "contact_name": "ບໍ່ມີໃນລະບົບ",
+      "status": "nomal",
+      "shareholding_pct": 40
+    }
+  ]
+}
