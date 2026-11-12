@@ -7,6 +7,7 @@ use App\Exceptions\SourceApi\InvalidSourceRecordException;
 use App\Models\SyncRun;
 use App\Services\Lcis\Data\LcisCompanyData;
 use App\Services\Lcis\Data\LcisProjectData;
+use App\Services\Matching\MatchTermIndex;
 use App\Services\Sync\SnapshotTable;
 use App\Services\Sync\SyncTally;
 use Carbon\CarbonInterface;
@@ -18,7 +19,10 @@ use Illuminate\Support\Facades\DB;
  */
 class LcisSynchronizer
 {
-    public function __construct(private readonly LcisApiClient $client) {}
+    public function __construct(
+        private readonly LcisApiClient $client,
+        private readonly MatchTermIndex $matchTerms,
+    ) {}
 
     public function sync(SyncRun $run): void
     {
@@ -51,7 +55,11 @@ class LcisSynchronizer
             'unchanged_count' => $projects->unchanged,
             'missing_count' => $projects->missing,
             'restored_count' => $projects->restored,
-            'details' => ['skipped' => $projects->skipped, 'companies' => $companies->toArray()],
+            'details' => [
+                'skipped' => $projects->skipped,
+                'companies' => $companies->toArray(),
+                'match_terms' => $this->matchTerms->rebuild(SyncSource::Lcis),
+            ],
         ]);
     }
 

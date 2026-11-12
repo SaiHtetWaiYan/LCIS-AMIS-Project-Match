@@ -7,6 +7,7 @@ use App\Exceptions\SourceApi\InvalidSourceRecordException;
 use App\Models\SyncRun;
 use App\Services\Amis\Data\AmisCompanyData;
 use App\Services\Amis\Data\AmisContractData;
+use App\Services\Matching\MatchTermIndex;
 use App\Services\Sync\SnapshotTable;
 use App\Services\Sync\SyncTally;
 use Carbon\CarbonInterface;
@@ -33,6 +34,7 @@ class AmisSynchronizer
     public function __construct(
         private readonly AmisApiClient $client,
         private readonly AreaUnitConverter $units,
+        private readonly MatchTermIndex $matchTerms,
     ) {}
 
     public function sync(SyncRun $run): void
@@ -74,6 +76,7 @@ class AmisSynchronizer
                 'companies' => $companies->toArray(),
                 'company_links' => $linkCount,
                 'unknown_units' => $this->unknownUnits,
+                'match_terms' => $this->matchTerms->rebuild(SyncSource::Amis),
             ],
         ]);
     }

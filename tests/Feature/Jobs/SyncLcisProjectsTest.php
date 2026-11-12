@@ -32,6 +32,8 @@ class SyncLcisProjectsTest extends TestCase
         $this->assertSame($admin->id, $run->triggered_by);
         $this->assertSame([3, 3, 3, 0, 0], [$run->expected_count, $run->fetched_count, $run->created_count, $run->updated_count, $run->missing_count]);
         $this->assertEquals(['created' => 1, 'updated' => 0, 'unchanged' => 0, 'restored' => 0, 'missing' => 0, 'skipped' => 0, 'fetched' => 1], $run->details['companies']);
+        $this->assertSame(9, $run->details['match_terms']);
+        $this->assertDatabaseHas('match_terms', ['side' => 'lcis', 'record_id' => 2, 'kind' => 'name', 'source' => 'lcis_company_eng', 'text_norm' => 'samphanxay mining']);
 
         $project = LcisProject::with('locations')->findOrFail(2);
         $this->assertSame('AGR-2024-0012', $project->project_code);

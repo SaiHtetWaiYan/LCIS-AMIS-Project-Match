@@ -2,11 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Enums\SyncSource;
 use App\Enums\UserSide;
 use App\Models\LcisCompany;
 use App\Models\LcisProject;
 use App\Models\LcisProjectLocation;
 use App\Models\User;
+use App\Services\Matching\MatchTermIndex;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -68,6 +70,19 @@ class LcisProjectControllerTest extends TestCase
         $response->assertOk();
         $response->assertSeeText('AGR-77');
         $response->assertDontSeeText('MIN-01');
+    }
+
+    public function test_search_ignores_zero_width_spaces_and_lao_spelling_variants(): void
+    {
+        LcisProject::factory()->create(['project_code' => 'ZWSP-1', 'company_name' => "ບໍ\u{200B}ລິ\u{200B}ສັດ ຄູນ\u{200B}ຄໍາ ຈໍາ\u{200B}ກັດ"]);
+        LcisProject::factory()->create(['project_code' => 'OTHER-2', 'company_name' => 'ບໍລິສັດ ສຳພັນໄຊ']);
+        app(MatchTermIndex::class)->rebuild(SyncSource::Lcis);
+
+        $response = $this->actingAs(User::factory()->create())->get('/lcis-projects?'.http_build_query(['search' => 'ຄູນຄຳ']));
+
+        $response->assertOk();
+        $response->assertSeeText('ZWSP-1');
+        $response->assertDontSeeText('OTHER-2');
     }
 
     public function test_search_treats_percent_as_a_literal_character(): void

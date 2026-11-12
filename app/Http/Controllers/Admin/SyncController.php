@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\SyncAmisContracts;
 use App\Jobs\SyncLcisProjects;
 use App\Models\SyncRun;
+use App\Services\Matching\MatchTermIndex;
 use App\Services\Sync\DistrictCodeCheck;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ use Illuminate\View\View;
 
 class SyncController extends Controller
 {
-    public function index(DistrictCodeCheck $districtCodeCheck): View
+    public function index(DistrictCodeCheck $districtCodeCheck, MatchTermIndex $matchTerms): View
     {
         Gate::authorize('viewAny', SyncRun::class);
 
@@ -34,6 +35,7 @@ class SyncController extends Controller
             'sources' => $sources,
             'runs' => SyncRun::query()->with('triggeredBy:id,name')->latest('started_at')->paginate(15),
             'districtCheck' => $districtCodeCheck->run(),
+            'laoTextSupported' => $matchTerms->databaseSupportsLao(),
         ]);
     }
 

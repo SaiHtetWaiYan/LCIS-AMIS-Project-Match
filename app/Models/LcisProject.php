@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\Matching\TextNormalizer;
 use App\Support\LikePattern;
 use Database\Factories\LcisProjectFactory;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -10,6 +11,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * An LCIS investment project as synced from GET /projects. Keyed by the LCIS id; raw holds the full payload.
@@ -65,7 +68,8 @@ class LcisProject extends Model
             ->whereLike('project_code', $pattern)
             ->orWhereLike('activity_name', $pattern)
             ->orWhereLike('company_name', $pattern)
-            ->orWhereHas('company', fn (Builder $query) => $query->whereLike('name_eng', $pattern)));
+            ->orWhereHas('company', fn (Builder $query) => $query->whereLike('name_eng', $pattern))
+            ->orWhereIn('id', self::idsWithNormalisedText($term)));
     }
 
     /**
@@ -91,5 +95,20 @@ class LcisProject extends Model
     public function isMissingFromSource(): bool
     {
         return $this->missing_since !== null;
+    }
+
+    /**
+     * Records whose normalised name or activity contains the normalised term, so searches ignore
+     * zero-width spaces, Lao spelling variants and legal-form words.
+     */
+    private static function idsWithNormalisedText(string $term): QueryBuilder
+    {
+        $normalised = app(TextNormalizer::class)->normalize($term);
+
+        return DB::table('match_terms')
+            ->select('record_id')
+            ->where('side', 'lcis')
+            ->when($normalised === '', fn (QueryBuilder $query) => $query->whereRaw('false'))
+            ->whereLike('text_norm', LikePattern::contains($normalised));
     }
 }

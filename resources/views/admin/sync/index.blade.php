@@ -4,6 +4,10 @@
         <x-page-title>{{ __('sync.title') }}</x-page-title>
     </x-slot>
 
+    @unless ($laoTextSupported)
+        <div class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800" role="alert">{{ __('matching.lao_trigram_broken') }}</div>
+    @endunless
+
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         @foreach ($sources as ['source' => $source, 'latest' => $latest, 'lastSuccess' => $lastSuccess])
             <x-card :title="$source->label()" :subtitle="__('sync.source_descriptions.'.$source->value)">

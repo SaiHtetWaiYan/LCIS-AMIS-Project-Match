@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CandidateSearchRequest;
 use App\Http\Requests\ListAmisContractsRequest;
 use App\Models\AmisContract;
+use App\Services\Matching\CandidateFinder;
 use App\Services\ProvinceDirectory;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -35,13 +37,22 @@ class AmisContractController extends Controller
         ]);
     }
 
-    public function show(AmisContract $amisContract, ProvinceDirectory $provinces): View
+    public function show(CandidateSearchRequest $request, AmisContract $amisContract, ProvinceDirectory $provinces, CandidateFinder $candidates): View
     {
         Gate::authorize('view', $amisContract);
 
+        $amisContract->load(['items', 'companies']);
+        $searchTerm = $request->searchTerm();
+
         return view('amis-contracts.show', [
-            'contract' => $amisContract->load(['items', 'companies']),
+            'contract' => $amisContract,
             'provinces' => $provinces->all(),
+            'candidates' => $candidates->forAmisContract($amisContract),
+            'searchTerm' => $searchTerm,
+            'searchResults' => $searchTerm === '' ? null : $candidates->scoreLcisProjects(
+                $amisContract,
+                $candidates->lcisQuery()->search($searchTerm)->orderByDesc('source_updated_at')->limit(20)->get(),
+            ),
         ]);
     }
 }

@@ -42,13 +42,13 @@ class DistrictCodeCheck
     }
 
     /**
-     * Ignores spacing, zero-width characters and the ເມືອງ (district) prefix.
+     * Ignores spacing, zero-width characters and the district prefix (ເມືອງ, abbreviated ມ.).
      */
     public static function normalize(string $name): string
     {
         $name = preg_replace('/[\s\x{200B}-\x{200D}\x{FEFF}]+/u', '', mb_strtolower($name)) ?? $name;
 
-        return preg_replace('/^(ເມືອງ|district)/u', '', $name) ?? $name;
+        return preg_replace('/^(ເມືອງ|ມ\.|district)/u', '', $name) ?? $name;
     }
 
     /**

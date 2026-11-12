@@ -15,7 +15,7 @@ class DistrictCodeCheckTest extends TestCase
     public function test_reports_codes_whose_names_differ_between_lcis_and_amis(): void
     {
         LcisProject::factory()->create(['responsible_district_id' => 104, 'responsible_district_name' => 'ສີສັດຕະນາກ']);
-        LcisProject::factory()->create(['responsible_district_id' => 103, 'responsible_district_name' => 'ໄຊເສດຖາ']);
+        LcisProject::factory()->create(['responsible_district_id' => 103, 'responsible_district_name' => 'ມ. ໄຊເສດຖາ']);
         AmisContractItem::factory()->create(['district_id' => 104, 'district_name' => 'ໄຊເສດຖາ']);
         AmisContractItem::factory()->create(['district_id' => 103, 'district_name' => "ເມືອງ ໄຊ\u{200B}ເສດຖາ"]);
         AmisContractItem::factory()->create(['district_id' => 1601, 'district_name' => 'ປາກເຊ']);

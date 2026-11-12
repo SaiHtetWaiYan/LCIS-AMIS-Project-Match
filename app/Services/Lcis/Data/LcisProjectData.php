@@ -4,6 +4,7 @@ namespace App\Services\Lcis\Data;
 
 use App\Exceptions\SourceApi\InvalidSourceRecordException;
 use App\Services\SourceApi\ParsesSourceValues;
+use App\Support\LaoAdministrativeCode;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 
@@ -51,9 +52,10 @@ final readonly class LcisProjectData
         $id = self::positiveIntOrNull($raw['id'] ?? null)
             ?? throw new InvalidSourceRecordException('LCIS project without a valid id.');
 
-        $provinceId = self::positiveIntOrNull($raw['responsibleProvinceId'] ?? null);
-        $provinceName = self::stringOrNull($raw['responsible_province_name'] ?? null);
         $districtId = self::positiveIntOrNull($raw['responsibleDistrictId'] ?? null);
+        // District-level projects send only the district; its code contains the province.
+        $provinceId = self::positiveIntOrNull($raw['responsibleProvinceId'] ?? null) ?? LaoAdministrativeCode::provinceOfDistrict($districtId);
+        $provinceName = self::stringOrNull($raw['responsible_province_name'] ?? null);
         $districtName = self::stringOrNull($raw['responsible_district_name'] ?? null);
 
         return new self(

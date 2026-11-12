@@ -77,5 +77,7 @@
         @endif
     </x-card>
 
+    @include('matching.panel', ['otherSide' => 'lcis'])
+
     <x-raw-data :raw="$contract->raw" />
 </x-app-layout>

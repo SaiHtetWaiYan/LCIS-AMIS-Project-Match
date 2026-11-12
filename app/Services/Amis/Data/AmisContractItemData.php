@@ -4,6 +4,7 @@ namespace App\Services\Amis\Data;
 
 use App\Services\Amis\AreaUnitConverter;
 use App\Services\SourceApi\ParsesSourceValues;
+use App\Support\LaoAdministrativeCode;
 
 /**
  * A land plot (items[]) of an AMIS contract.
@@ -15,11 +16,6 @@ use App\Services\SourceApi\ParsesSourceValues;
 final readonly class AmisContractItemData
 {
     use ParsesSourceValues;
-
-    /**
-     * Province codes in Laos run from 1 to 18; district codes are province * 100 + n.
-     */
-    private const MAX_PROVINCE_ID = 18;
 
     public function __construct(
         public int $id,
@@ -52,7 +48,7 @@ final readonly class AmisContractItemData
             id: $id,
             landUseDetail: self::stringOrNull($raw['rent_detell'] ?? null),
             provinceId: self::positiveIntOrNull($raw['province_id'] ?? null)
-                ?? self::provinceFromDistrict($districtId)
+                ?? LaoAdministrativeCode::provinceOfDistrict($districtId)
                 ?? $partnerProvinceId,
             districtId: $districtId,
             districtName: self::stringOrNull($raw['district_name'] ?? null),
@@ -96,16 +92,5 @@ final readonly class AmisContractItemData
     public function keyFields(): array
     {
         return [$this->landUseDetail, $this->provinceId, $this->districtId, $this->village, $this->areaHa];
-    }
-
-    private static function provinceFromDistrict(?int $districtId): ?int
-    {
-        if ($districtId === null) {
-            return null;
-        }
-
-        $provinceId = intdiv($districtId, 100);
-
-        return $provinceId >= 1 && $provinceId <= self::MAX_PROVINCE_ID ? $provinceId : null;
     }
 }

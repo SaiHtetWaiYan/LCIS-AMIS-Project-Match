@@ -53,5 +53,7 @@
         @endif
     </x-card>
 
+    @include('matching.panel', ['otherSide' => 'amis'])
+
     <x-raw-data :raw="$project->raw" />
 </x-app-layout>

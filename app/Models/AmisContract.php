@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\Matching\TextNormalizer;
 use App\Support\LikePattern;
 use Database\Factories\AmisContractFactory;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -10,6 +11,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * An AMIS rent-land contract (concession or rental) as synced from GET /income/rent-land. Keyed by contact_id.
@@ -71,7 +74,8 @@ class AmisContract extends Model
             ->orWhereHas('companies', fn (Builder $query) => $query
                 ->whereLike('name_lao', $pattern)
                 ->orWhereLike('name_eng', $pattern)
-                ->orWhereLike('tax_id', $pattern)));
+                ->orWhereLike('tax_id', $pattern))
+            ->orWhereIn('id', self::idsWithNormalisedText($term)));
     }
 
     /**
@@ -99,5 +103,20 @@ class AmisContract extends Model
     public function isMissingFromSource(): bool
     {
         return $this->missing_since !== null;
+    }
+
+    /**
+     * Records whose normalised name or activity contains the normalised term, so searches ignore
+     * zero-width spaces, Lao spelling variants and legal-form words.
+     */
+    private static function idsWithNormalisedText(string $term): QueryBuilder
+    {
+        $normalised = app(TextNormalizer::class)->normalize($term);
+
+        return DB::table('match_terms')
+            ->select('record_id')
+            ->where('side', 'amis')
+            ->when($normalised === '', fn (QueryBuilder $query) => $query->whereRaw('false'))
+            ->whereLike('text_norm', LikePattern::contains($normalised));
     }
 }

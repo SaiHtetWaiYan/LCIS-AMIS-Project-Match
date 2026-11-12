@@ -18,6 +18,17 @@ class LcisProjectDataTest extends TestCase
         $this->assertNull($project->areaHa);
     }
 
+    public function test_derives_the_province_of_a_district_level_project_from_its_district_code(): void
+    {
+        $raw = [...$this->fixture('lcis/project.json'), 'responsibleLevel' => 'district', 'responsibleProvinceId' => null, 'responsible_province_name' => null, 'responsibleDistrictId' => 611, 'responsible_district_name' => 'ມ. ພູຄູນ'];
+
+        $project = LcisProjectData::fromApi($raw);
+
+        $this->assertSame(6, $project->responsibleProvinceId);
+        $this->assertSame(6, $project->locations[0]->provinceId);
+        $this->assertSame(611, $project->locations[0]->districtId);
+    }
+
     public function test_uses_locations_and_area_once_lcis_sends_them(): void
     {
         $raw = $this->fixture('lcis/project.json');

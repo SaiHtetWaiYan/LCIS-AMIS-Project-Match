@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CandidateSearchRequest;
 use App\Http\Requests\ListLcisProjectsRequest;
 use App\Models\LcisProject;
+use App\Services\Matching\CandidateFinder;
 use App\Services\ProvinceDirectory;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -34,13 +36,22 @@ class LcisProjectController extends Controller
         ]);
     }
 
-    public function show(LcisProject $lcisProject, ProvinceDirectory $provinces): View
+    public function show(CandidateSearchRequest $request, LcisProject $lcisProject, ProvinceDirectory $provinces, CandidateFinder $candidates): View
     {
         Gate::authorize('view', $lcisProject);
 
+        $lcisProject->load(['locations', 'company']);
+        $searchTerm = $request->searchTerm();
+
         return view('lcis-projects.show', [
-            'project' => $lcisProject->load(['locations', 'company']),
+            'project' => $lcisProject,
             'provinces' => $provinces->all(),
+            'candidates' => $candidates->forLcisProject($lcisProject),
+            'searchTerm' => $searchTerm,
+            'searchResults' => $searchTerm === '' ? null : $candidates->scoreAmisContracts(
+                $lcisProject,
+                $candidates->amisQuery()->search($searchTerm)->orderByDesc('id')->limit(20)->get(),
+            ),
         ]);
     }
 }
