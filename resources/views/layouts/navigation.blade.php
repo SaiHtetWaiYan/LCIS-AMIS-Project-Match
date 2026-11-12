@@ -1,6 +1,8 @@
 @php
     $links = [
         ['route' => 'dashboard', 'active' => 'dashboard', 'label' => __('app.nav.dashboard'), 'visible' => true],
+        ['route' => 'lcis-projects.index', 'active' => 'lcis-projects.*', 'label' => __('app.nav.lcis_projects'), 'visible' => auth()->user()->can('viewAny', App\Models\LcisProject::class)],
+        ['route' => 'amis-contracts.index', 'active' => 'amis-contracts.*', 'label' => __('app.nav.amis_contracts'), 'visible' => auth()->user()->can('viewAny', App\Models\AmisContract::class)],
         ['route' => 'admin.users.index', 'active' => 'admin.users.*', 'label' => __('app.nav.users'), 'visible' => auth()->user()->can('viewAny', App\Models\User::class)],
         ['route' => 'admin.sync.index', 'active' => 'admin.sync.*', 'label' => __('app.nav.sync'), 'visible' => auth()->user()->can('viewAny', App\Models\SyncRun::class)],
     ];
