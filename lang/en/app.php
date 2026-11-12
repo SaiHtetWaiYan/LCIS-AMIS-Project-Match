@@ -22,6 +22,7 @@ return [
         'amis_contracts' => 'AMIS contracts',
         'matches' => 'Matches',
         'queue' => 'My queue',
+        'guide' => 'Guide',
         'sync' => 'Sync',
         'account' => 'My account',
         'logout' => 'Log out',

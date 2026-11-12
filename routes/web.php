@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\UserDeactivationController;
 use App\Http\Controllers\AmisContractController;
 use App\Http\Controllers\CompareController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GuideController;
 use App\Http\Controllers\LcisProjectController;
 use App\Http\Controllers\MatchExportController;
 use App\Http\Controllers\MatchQueueController;
@@ -18,6 +19,7 @@ Route::redirect('/', '/dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/guide', GuideController::class)->name('guide');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
 
