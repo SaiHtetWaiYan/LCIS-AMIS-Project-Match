@@ -27,6 +27,7 @@ class CandidateSuggestionsTest extends TestCase
         $response->assertOk();
         $response->assertSeeTextInOrder(['Suggested AMIS contracts', '5871/MTC', '100%', '3 of 4 rules had data']);
         $response->assertSeeText(['Company name', 'LCIS company “ບໍລິສັດ ສຳພັນໄຊ ຈຳກັດ” ↔ AMIS partner', 'Same province', 'No data on one side']);
+        $response->assertSeeText('Compare');
         $response->assertDontSeeText('UNRELATED-1');
     }
 

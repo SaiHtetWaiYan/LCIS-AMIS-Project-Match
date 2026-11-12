@@ -19,7 +19,7 @@ class ActivityRuleTest extends TestCase
         $project = LcisProject::factory()->create(['activity_name' => 'ໂຄງການ ປູກກາເຟ']);
         $contract = AmisContract::factory()->create(['contract_name' => 'ສັນຍາ ປູກກາເຟ']);
 
-        $result = (new ActivityRule)->evaluate($this->pairFor($project, $contract));
+        $result = app(ActivityRule::class)->evaluate($this->pairFor($project, $contract));
 
         $this->assertSame(1.0, $result->score);
         $this->assertSame('LCIS activity “ໂຄງການ ປູກກາເຟ” ↔ AMIS contract name “ສັນຍາ ປູກກາເຟ”', $result->reason);
@@ -31,7 +31,7 @@ class ActivityRuleTest extends TestCase
         $contract = AmisContract::factory()->create(['contract_name' => 'ສັນຍາສຳປະທານທີ່ດິນ']);
         AmisContractItem::factory()->for($contract, 'contract')->create(['land_use_detail' => 'ຂຸດຄົ້້ນ ແລະ ປຸງແຕ່ງ ແຮ່ເຫລັກ']);
 
-        $result = (new ActivityRule)->evaluate($this->pairFor($project, $contract));
+        $result = app(ActivityRule::class)->evaluate($this->pairFor($project, $contract));
 
         $this->assertSame(1.0, $result->score);
         $this->assertStringContainsString('AMIS land use', $result->reason);
@@ -42,6 +42,6 @@ class ActivityRuleTest extends TestCase
         $project = LcisProject::factory()->create(['activity_name' => null]);
         $contract = AmisContract::factory()->create(['contract_name' => 'ປູກກາເຟ']);
 
-        $this->assertNull((new ActivityRule)->evaluate($this->pairFor($project, $contract)));
+        $this->assertNull(app(ActivityRule::class)->evaluate($this->pairFor($project, $contract)));
     }
 }

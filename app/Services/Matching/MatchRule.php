@@ -17,4 +17,9 @@ interface MatchRule
      * Score 0–1 with a readable reason, or null when either side lacks the data.
      */
     public function evaluate(MatchPair $pair): ?RuleResult;
+
+    /**
+     * What each side holds for this rule, shown side by side on the compare screen.
+     */
+    public function values(MatchPair $pair): RuleValues;
 }

@@ -4,7 +4,11 @@ use App\Http\Controllers\Admin\SyncController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UserDeactivationController;
 use App\Http\Controllers\AmisContractController;
+use App\Http\Controllers\CompareController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LcisProjectController;
+use App\Http\Controllers\MatchExportController;
+use App\Http\Controllers\MatchQueueController;
 use App\Http\Controllers\MatchTransitionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectMatchController;
@@ -13,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::redirect('/', '/dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::view('/dashboard', 'dashboard')->name('dashboard');
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
 
@@ -22,8 +26,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/amis-contracts', [AmisContractController::class, 'index'])->name('amis-contracts.index');
     Route::get('/amis-contracts/{amisContract}', [AmisContractController::class, 'show'])->name('amis-contracts.show');
 
+    Route::get('/compare', [CompareController::class, 'show'])->name('compare');
+    Route::get('/queue', MatchQueueController::class)->name('matches.queue');
+
+    Route::get('/matches', [ProjectMatchController::class, 'index'])->name('matches.index');
+    Route::get('/matches/export', MatchExportController::class)->name('matches.export');
     Route::post('/matches', [ProjectMatchController::class, 'store'])->name('matches.store');
-    Route::get('/matches/{match}', [ProjectMatchController::class, 'show'])->name('matches.show');
+    Route::get('/matches/{match}', [ProjectMatchController::class, 'show'])->whereNumber('match')->name('matches.show');
     Route::post('/matches/{match}/confirm', [MatchTransitionController::class, 'confirm'])->name('matches.confirm');
     Route::post('/matches/{match}/reject', [MatchTransitionController::class, 'reject'])->name('matches.reject');
     Route::post('/matches/{match}/withdraw', [MatchTransitionController::class, 'withdraw'])->name('matches.withdraw');

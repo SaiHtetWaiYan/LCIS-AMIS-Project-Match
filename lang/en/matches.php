@@ -3,8 +3,26 @@
 return [
 
     'match' => 'Match',
+    'matches' => 'Matches',
     'title' => 'Match #:id',
     'history' => 'History',
+    'empty' => 'No matches with these filters.',
+    'search_hint' => 'LCIS code, AMIS contract number, name or company',
+    'any_status' => 'Any status',
+    'only_needs_review' => 'Only needs review',
+    'export' => 'Export CSV',
+    'pair' => 'Pair',
+    'proposed_ago' => 'Proposed by :name :ago',
+    'updated' => 'Updated',
+
+    'queue' => [
+        'title' => 'My queue',
+        'subtitle' => 'Proposals waiting for a confirmation or rejection from the :side side, oldest first.',
+        'admin_subtitle' => 'Active matches flagged for review after a sync, oldest first.',
+        'empty' => 'Nothing is waiting for your side.',
+        'admin_empty' => 'No matches need review.',
+        'open' => 'Review',
+    ],
 
     'statuses' => [
         'proposed' => 'Proposed',
@@ -69,6 +87,31 @@ return [
         'amis_missing' => 'the AMIS contract is missing from AMIS',
         'lcis_changed' => 'key fields of the LCIS project changed after confirmation',
         'amis_changed' => 'key fields of the AMIS contract changed after confirmation',
+    ],
+
+    'csv' => [
+        'match_id' => 'match_id',
+        'status' => 'status',
+        'needs_review' => 'needs_review',
+        'lcis_project_id' => 'lcis_project_id',
+        'lcis_project_code' => 'lcis_project_code',
+        'lcis_activity' => 'lcis_activity',
+        'lcis_company' => 'lcis_company',
+        'amis_contract_id' => 'amis_contract_id',
+        'amis_contract_number' => 'amis_contract_number',
+        'amis_contract_name' => 'amis_contract_name',
+        'amis_partners' => 'amis_partners',
+        'proposed_by' => 'proposed_by',
+        'proposed_at' => 'proposed_at',
+        'lcis_confirmed_by' => 'lcis_confirmed_by',
+        'lcis_confirmed_at' => 'lcis_confirmed_at',
+        'amis_confirmed_by' => 'amis_confirmed_by',
+        'amis_confirmed_at' => 'amis_confirmed_at',
+        'matched_at' => 'matched_at',
+        'rejected_at' => 'rejected_at',
+        'rejection_reason' => 'rejection_reason',
+        'unmatched_at' => 'unmatched_at',
+        'unmatch_reason' => 'unmatch_reason',
     ],
 
     'review_hint' => 'Flagged because :reasons. Check the records, then mark as reviewed or unmatch.',

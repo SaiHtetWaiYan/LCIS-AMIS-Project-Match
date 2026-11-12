@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserSide;
+use App\Http\Requests\ListMatchesRequest;
 use App\Http\Requests\ProposeMatchRequest;
 use App\Models\AmisContract;
 use App\Models\LcisProject;
 use App\Models\ProjectMatch;
 use App\Services\Matches\MatchWorkflow;
-use App\Services\Matching\CandidateFinder;
-use App\Services\ProvinceDirectory;
+use App\Services\Matching\PairComparer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -29,16 +29,37 @@ class ProjectMatchController extends Controller
             ->with('status', __('matches.flash.proposed', ['side' => $otherSide->label()]));
     }
 
-    public function show(ProjectMatch $match, CandidateFinder $candidates, ProvinceDirectory $provinces): View
+    public function index(ListMatchesRequest $request): View
+    {
+        $filters = $request->filters();
+
+        return view('matches.index', [
+            'filters' => $filters,
+            'matches' => ProjectMatch::query()
+                ->filteredBy($filters)
+                ->with(['lcisProject:id,project_code,activity_name,company_name', 'amisContract:id,contract_number,contract_name,partner_names', 'proposer:id,name'])
+                ->latest('updated_at')
+                ->orderByDesc('id')
+                ->paginate(25)
+                ->withQueryString(),
+        ]);
+    }
+
+    public function show(ProjectMatch $match, PairComparer $comparer): View
     {
         Gate::authorize('view', $match);
 
-        $match->load(['lcisProject.locations', 'lcisProject.company', 'amisContract.items', 'amisContract.companies', 'proposer', 'lcisConfirmer', 'amisConfirmer', 'events.user']);
+        $match->load(['proposer', 'lcisConfirmer', 'amisConfirmer', 'events.user']);
 
-        return view('matches.show', [
+        return view('compare.show', [
+            'comparison' => $comparer->compare($match->lcisProject, $match->amisContract),
             'match' => $match,
-            'score' => $candidates->scoreAmisContracts($match->lcisProject, $match->amisContract->newCollection([$match->amisContract]))[0]->score,
-            'provinces' => $provinces->all(),
+            'earlierMatches' => ProjectMatch::query()
+                ->where('lcis_project_id', $match->lcis_project_id)
+                ->where('amis_contract_id', $match->amis_contract_id)
+                ->whereKeyNot($match->id)
+                ->latest('id')
+                ->get(),
         ]);
     }
 }

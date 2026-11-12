@@ -35,6 +35,7 @@
             @php
                 [$pairProject, $pairContract] = $record instanceof App\Models\AmisContract ? [$subject, $record] : [$record, $subject];
             @endphp
+            <x-link-button variant="view" class="justify-center" :href="route('compare', ['lcis' => $pairProject->id, 'amis' => $pairContract->id])">{{ __('compare.button') }}</x-link-button>
             @if ($record->activeMatch)
                 <x-match-badge :match="$record->activeMatch" />
             @elseif (auth()->user()->can('create', [App\Models\ProjectMatch::class, $pairProject, $pairContract]))

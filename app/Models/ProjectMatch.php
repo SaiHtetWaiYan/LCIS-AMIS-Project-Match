@@ -108,6 +108,23 @@ class ProjectMatch extends Model
             ->whereNull($side === UserSide::Lcis ? 'lcis_confirmed_at' : 'amis_confirmed_at');
     }
 
+    /**
+     * The matches list filters: a status, only flagged matches, and a term found in either record.
+     *
+     * @param  Builder<self>  $query
+     * @param  array{search: string, status: ?MatchStatus, needs_review: bool}  $filters
+     */
+    #[Scope]
+    protected function filteredBy(Builder $query, array $filters): void
+    {
+        $query
+            ->when($filters['status'], fn (Builder $query, MatchStatus $status) => $query->where('status', $status))
+            ->when($filters['needs_review'], fn (Builder $query) => $query->where('needs_review', true))
+            ->when($filters['search'] !== '', fn (Builder $query) => $query->where(fn (Builder $query) => $query
+                ->whereHas('lcisProject', fn (Builder $query) => $query->search($filters['search']))
+                ->orWhereHas('amisContract', fn (Builder $query) => $query->search($filters['search']))));
+    }
+
     public function isConfirmedBy(UserSide $side): bool
     {
         return match ($side) {

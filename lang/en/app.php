@@ -20,6 +20,8 @@ return [
         'users' => 'Users',
         'lcis_projects' => 'LCIS projects',
         'amis_contracts' => 'AMIS contracts',
+        'matches' => 'Matches',
+        'queue' => 'My queue',
         'sync' => 'Sync',
         'account' => 'My account',
         'logout' => 'Log out',
@@ -60,6 +62,23 @@ return [
     'synced_at' => 'Last synced :date',
 
     'dismiss' => 'Dismiss',
-    'dashboard_placeholder' => 'Matching screens arrive in the next steps. Admins can follow both syncs on the Sync page.',
+
+    'dashboard' => [
+        'welcome' => 'Signed in as :name (:side).',
+        'unmatched_lcis' => 'LCIS projects not matched',
+        'unmatched_amis' => 'AMIS contracts not matched',
+        'of_total' => 'of :total in the source',
+        'awaiting_me' => 'Waiting for your side',
+        'awaiting_me_hint' => 'Proposals to confirm or reject',
+        'needs_review' => 'Needs review',
+        'needs_review_hint' => 'Active matches flagged after a sync',
+        'matches' => 'Matches by status',
+        'sync' => 'Data from the source systems',
+        'never_synced' => 'Never synced',
+        'last_sync' => 'Last sync',
+        'last_success' => 'Last successful sync :ago',
+        'open_queue' => 'Open my queue',
+        'all_matches' => 'All matches',
+    ],
 
 ];

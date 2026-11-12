@@ -20,6 +20,17 @@ return [
         'amis_land_use' => 'AMIS land use',
     ],
 
+    // Short notes beside a value on the compare screen; a source without a note shows none.
+    'value_notes' => [
+        'lcis_company_eng' => 'English',
+        'amis_company_lao' => 'Linked company',
+        'amis_company_eng' => 'Linked company, English',
+        'amis_partner' => 'Partner',
+        'amis_contract_name' => 'Contract name',
+        'amis_land_use' => 'Land use',
+        'location_fallback' => 'Responsible office',
+    ],
+
     'reasons' => [
         'text' => ':lcis_source “:lcis_text” ↔ :amis_source “:amis_text”',
         'area' => 'LCIS :lcis ha vs AMIS :amis ha (:percent% apart)',

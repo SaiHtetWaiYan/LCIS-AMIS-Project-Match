@@ -7,6 +7,7 @@ use App\Models\LcisProjectLocation;
 use App\Services\Matching\MatchPair;
 use App\Services\Matching\MatchRule;
 use App\Services\Matching\RuleResult;
+use App\Services\Matching\RuleValues;
 use App\Services\ProvinceDirectory;
 
 /**
@@ -47,6 +48,24 @@ class LocationRule implements MatchRule
         }
 
         return new RuleResult($best['score'], $this->reason($best));
+    }
+
+    public function values(MatchPair $pair): RuleValues
+    {
+        return new RuleValues(
+            RuleValues::list($pair->project->locations->map(fn (LcisProjectLocation $location): array => [
+                $this->place($location->province_id, $location->district_name, $location->village_name),
+                $location->is_fallback ? __('matching.value_notes.location_fallback') : null,
+            ])),
+            RuleValues::list($pair->contract->items->map(fn (AmisContractItem $plot): array => [
+                $this->place($plot->province_id, $plot->district_name, $plot->village),
+            ])),
+        );
+    }
+
+    private function place(?int $provinceId, ?string $district, ?string $village): string
+    {
+        return collect([$this->provinces->name($provinceId), $district, $village])->filter(fn (?string $part): bool => trim((string) $part) !== '')->implode(' · ');
     }
 
     /**

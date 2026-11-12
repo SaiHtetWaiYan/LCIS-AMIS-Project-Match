@@ -30,6 +30,22 @@ class MatchScorer
         return new ScoreCard($outcomes);
     }
 
+    /**
+     * What each side holds for every configured rule, keyed by rule class.
+     *
+     * @return array<class-string<MatchRule>, RuleValues>
+     */
+    public function values(MatchPair $pair): array
+    {
+        $values = [];
+
+        foreach (array_keys(config('matching.rules')) as $ruleClass) {
+            $values[$ruleClass] = $this->rule($ruleClass)->values($pair);
+        }
+
+        return $values;
+    }
+
     private function rule(string $ruleClass): MatchRule
     {
         if (! is_subclass_of($ruleClass, MatchRule::class)) {

@@ -9,6 +9,7 @@ use App\Services\Matching\MatchRule;
 use App\Services\Matching\MatchScorer;
 use App\Services\Matching\RuleResult;
 use App\Services\Matching\Rules\AreaRule;
+use App\Services\Matching\RuleValues;
 use InvalidArgumentException;
 use Tests\TestCase;
 
@@ -73,6 +74,8 @@ class MatchScorerTest extends TestCase
 
 class FixedScoreRule implements MatchRule
 {
+    use HasNoValues;
+
     public function label(): string
     {
         return 'Fixed';
@@ -86,6 +89,8 @@ class FixedScoreRule implements MatchRule
 
 class SecondFixedScoreRule implements MatchRule
 {
+    use HasNoValues;
+
     public function label(): string
     {
         return 'Second';
@@ -99,6 +104,8 @@ class SecondFixedScoreRule implements MatchRule
 
 class NoDataRule implements MatchRule
 {
+    use HasNoValues;
+
     public function label(): string
     {
         return 'No data';
@@ -107,5 +114,13 @@ class NoDataRule implements MatchRule
     public function evaluate(MatchPair $pair): ?RuleResult
     {
         return null;
+    }
+}
+
+trait HasNoValues
+{
+    public function values(MatchPair $pair): RuleValues
+    {
+        return new RuleValues([], []);
     }
 }

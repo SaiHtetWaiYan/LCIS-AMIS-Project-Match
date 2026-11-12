@@ -5,6 +5,7 @@ namespace App\Services\Matching\Rules;
 use App\Services\Matching\MatchPair;
 use App\Services\Matching\MatchRule;
 use App\Services\Matching\RuleResult;
+use App\Services\Matching\RuleValues;
 
 /**
  * Compares total areas in hectares by relative difference |a − b| / max(a, b): full score up to
@@ -33,6 +34,17 @@ class AreaRule implements MatchRule
             'amis' => number_format($amisArea, 2),
             'percent' => (int) round($difference * 100),
         ]));
+    }
+
+    public function values(MatchPair $pair): RuleValues
+    {
+        $hectares = fn (mixed $area): ?string => $area === null ? null : __('app.hectares', ['value' => number_format((float) $area, 2)]);
+        $plotCount = $pair->contract->items->count();
+
+        return new RuleValues(
+            RuleValues::list([[$hectares($pair->project->area_ha)]]),
+            RuleValues::list([[$hectares($pair->contract->area_ha), $plotCount > 1 ? __('amis.items.count', ['count' => $plotCount]) : null]]),
+        );
     }
 
     private function scoreFor(float $difference): float

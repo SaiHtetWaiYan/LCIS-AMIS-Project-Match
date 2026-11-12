@@ -21,7 +21,7 @@ class CompanyNameRuleTest extends TestCase
         $contract = AmisContract::factory()->create(['partner_names' => []]);
         $contract->companies()->attach(AmisCompany::factory()->create(['name_lao' => "ບໍ\u{200B}ລິ\u{200B}ສັດ ຮ່ວມ\u{200B}ທຶນ\u{200B}ສຳ\u{200B}ພັນ\u{200B}ໄຊ ມາຍ\u{200B}ນີ້ງ ຈໍາ\u{200B}ກັດຜູ້ດຽວ", 'name_eng' => null]));
 
-        $result = (new CompanyNameRule)->evaluate($this->pairFor($project, $contract));
+        $result = app(CompanyNameRule::class)->evaluate($this->pairFor($project, $contract));
 
         $this->assertSame(1.0, $result->score);
         $this->assertStringContainsString('LCIS company “ບໍລິສັດ ຮ່ວມທຶນສຳພັນໄຊ ມາຍນີ້ງ ຈຳກັດ” ↔ AMIS company', $result->reason);
@@ -34,7 +34,7 @@ class CompanyNameRuleTest extends TestCase
         $contract = AmisContract::factory()->create(['partner_names' => ['ບໍລິສັດ ອື່ນໆ']]);
         $contract->companies()->attach(AmisCompany::factory()->create(['name_lao' => 'ບໍລິສັດ ຄູນຄຳ', 'name_eng' => 'SAMPHANXAY MINING SOLE CO.,LTD']));
 
-        $result = (new CompanyNameRule)->evaluate($this->pairFor($project, $contract));
+        $result = app(CompanyNameRule::class)->evaluate($this->pairFor($project, $contract));
 
         $this->assertSame(1.0, $result->score);
         $this->assertSame('LCIS company (English) “Samphanxay Mining Co., Ltd” ↔ AMIS company (English) “SAMPHANXAY MINING SOLE CO.,LTD”', $result->reason);
@@ -45,7 +45,7 @@ class CompanyNameRuleTest extends TestCase
         $project = LcisProject::factory()->create(['company_name' => 'ບໍລິສັດ ບີເອັມຊີ ຈຳກັດ']);
         $contract = AmisContract::factory()->create(['partner_names' => ['ບໍລິສັດບີເອັມຊີ']]);
 
-        $result = (new CompanyNameRule)->evaluate($this->pairFor($project, $contract));
+        $result = app(CompanyNameRule::class)->evaluate($this->pairFor($project, $contract));
 
         $this->assertSame(1.0, $result->score);
         $this->assertStringContainsString('AMIS partner “ບໍລິສັດບີເອັມຊີ”', $result->reason);
@@ -56,7 +56,7 @@ class CompanyNameRuleTest extends TestCase
         $project = LcisProject::factory()->create(['company_name' => 'ບໍລິສັດ ສຳພັນໄຊ']);
         $contract = AmisContract::factory()->create(['partner_names' => ['ບໍລິສັດ ຄູນຄຳ']]);
 
-        $result = (new CompanyNameRule)->evaluate($this->pairFor($project, $contract));
+        $result = app(CompanyNameRule::class)->evaluate($this->pairFor($project, $contract));
 
         $this->assertLessThan(0.2, $result->score);
     }
@@ -66,6 +66,6 @@ class CompanyNameRuleTest extends TestCase
         $project = LcisProject::factory()->create(['company_name' => 'ບໍລິສັດ ສຳພັນໄຊ']);
         $contract = AmisContract::factory()->create(['partner_names' => []]);
 
-        $this->assertNull((new CompanyNameRule)->evaluate($this->pairFor($project, $contract)));
+        $this->assertNull(app(CompanyNameRule::class)->evaluate($this->pairFor($project, $contract)));
     }
 }
