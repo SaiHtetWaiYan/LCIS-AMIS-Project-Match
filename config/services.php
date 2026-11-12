@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'lcis' => [
+        'base_url' => env('LCIS_API_BASE_URL', 'http://10.10.0.243/api/v1'),
+        'token' => env('LCIS_API_TOKEN'),
+    ],
+
+    'amis' => [
+        'base_url' => env('AMIS_API_BASE_URL', 'https://api.amis.gov.la/api/v1/public'),
+        'key' => env('AMIS_API_KEY'),
+    ],
+
 ];
