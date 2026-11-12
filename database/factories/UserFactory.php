@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\UserSide;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -27,19 +28,37 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
+            'side' => UserSide::Lcis,
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
+    public function lcis(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
+        return $this->state(fn (array $attributes): array => [
+            'side' => UserSide::Lcis,
+        ]);
+    }
+
+    public function amis(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'side' => UserSide::Amis,
+        ]);
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'side' => UserSide::Admin,
+        ]);
+    }
+
+    public function deactivated(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'deactivated_at' => now(),
         ]);
     }
 }
