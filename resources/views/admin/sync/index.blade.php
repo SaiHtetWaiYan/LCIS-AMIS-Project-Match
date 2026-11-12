@@ -117,6 +117,15 @@
                 @endif
             </p>
 
+            @if ($districtCheck['spelling'] !== [])
+                <p class="mt-3 text-sm text-gray-600">{{ __('sync.districts.spelling', ['count' => count($districtCheck['spelling'])]) }}</p>
+                <ul class="mt-2 flex flex-wrap gap-2">
+                    @foreach ($districtCheck['spelling'] as $variant)
+                        <li><x-badge><span class="font-mono">{{ $variant['code'] }}</span> · {{ implode(', ', $variant['lcis']) }} ≈ {{ implode(', ', $variant['amis']) }}</x-badge></li>
+                    @endforeach
+                </ul>
+            @endif
+
             @if ($districtCheck['mismatches'] !== [])
                 <div class="-mx-4 sm:-mx-6 mt-4 overflow-x-auto">
                     <table class="min-w-full text-left text-sm">

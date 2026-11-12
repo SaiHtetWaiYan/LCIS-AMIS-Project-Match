@@ -24,5 +24,19 @@ class DistrictCodeCheckTest extends TestCase
 
         $this->assertSame(2, $result['compared']);
         $this->assertSame([['code' => 104, 'lcis' => ['ສີສັດຕະນາກ'], 'amis' => ['ໄຊເສດຖາ']]], $result['mismatches']);
+        $this->assertSame([], $result['spelling']);
+    }
+
+    public function test_lists_spelling_variants_of_the_same_district_separately(): void
+    {
+        LcisProject::factory()->create(['responsible_district_id' => 1801, 'responsible_district_name' => 'ມ. ອະນຸວົງ']);
+        LcisProject::factory()->create(['responsible_district_id' => 402, 'responsible_district_name' => 'ມ. ຫຼາ']);
+        AmisContractItem::factory()->create(['district_id' => 1801, 'district_name' => 'ອານຸວົງ']);
+        AmisContractItem::factory()->create(['district_id' => 402, 'district_name' => 'ຫລາ']);
+
+        $result = app(DistrictCodeCheck::class)->run();
+
+        $this->assertSame([['code' => 1801, 'lcis' => ['ມ. ອະນຸວົງ'], 'amis' => ['ອານຸວົງ']]], $result['spelling']);
+        $this->assertSame([], $result['mismatches']);
     }
 }
