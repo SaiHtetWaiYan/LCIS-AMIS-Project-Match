@@ -1,14 +1,14 @@
 @props(['title' => null, 'subtitle' => null])
 
-<section {{ $attributes->merge(['class' => 'relative flex flex-col w-full bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 shadow-md rounded-xl bg-clip-border']) }}>
+<section {{ $attributes->merge(['class' => 'relative flex flex-col w-full bg-white text-gray-700 shadow-md rounded-xl bg-clip-border']) }}>
     @if ($title || isset($actions))
         <div class="flex flex-wrap items-center justify-between gap-4 px-4 sm:px-6 pt-5">
             <div>
                 @if ($title)
-                    <h2 class="font-sans text-xl font-semibold leading-snug text-blue-gray-900 dark:text-gray-100">{{ $title }}</h2>
+                    <h2 class="font-sans text-xl font-semibold leading-snug text-blue-gray-900">{{ $title }}</h2>
                 @endif
                 @if ($subtitle)
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $subtitle }}</p>
+                    <p class="mt-1 text-sm text-gray-500">{{ $subtitle }}</p>
                 @endif
             </div>
             @isset($actions)

@@ -45,29 +45,29 @@
         @endcan
 
         @if ($users->isEmpty())
-            <p class="p-4 text-center text-sm text-blue-gray-900 dark:text-gray-300">{{ __('users.empty') }}</p>
+            <p class="p-4 text-center text-sm text-blue-gray-900">{{ __('users.empty') }}</p>
         @else
             <div class="-mx-4 sm:-mx-6 overflow-x-auto">
                 <table class="min-w-full text-left text-sm">
                     <thead class="hidden md:table-header-group">
                         <tr>
                             @foreach (['#', __('users.fields.name'), __('users.fields.side'), __('users.fields.status'), ''] as $heading)
-                                <th scope="col" class="px-6 py-4 border-y border-blue-gray-100 dark:border-gray-700 bg-blue-gray-50/50 dark:bg-gray-900/40 font-normal text-blue-gray-900/70 dark:text-gray-400">{{ $heading }}</th>
+                                <th scope="col" class="px-6 py-4 border-y border-blue-gray-100 bg-blue-gray-50/50 font-normal text-blue-gray-900/70">{{ $heading }}</th>
                             @endforeach
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($users as $user)
-                            <tr class="block md:table-row px-4 py-4 md:p-0 border-b border-blue-gray-50 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700/40">
-                                <td class="hidden md:table-cell px-6 py-4 align-middle text-blue-gray-900 dark:text-gray-300">{{ $users->firstItem() + $loop->index }}</td>
+                            <tr class="block md:table-row px-4 py-4 md:p-0 border-b border-blue-gray-50 hover:bg-slate-50">
+                                <td class="hidden md:table-cell px-6 py-4 align-middle text-blue-gray-900">{{ $users->firstItem() + $loop->index }}</td>
                                 <td class="block md:table-cell md:px-6 md:py-4 align-middle">
-                                    <div class="font-medium text-blue-gray-900 dark:text-gray-100">
+                                    <div class="font-medium text-blue-gray-900">
                                         {{ $user->name }}
                                         @if ($user->is(auth()->user()))
-                                            <span class="text-xs font-normal text-gray-500 dark:text-gray-400">({{ __('users.hints.you') }})</span>
+                                            <span class="text-xs font-normal text-gray-500">({{ __('users.hints.you') }})</span>
                                         @endif
                                     </div>
-                                    <div class="text-gray-500 dark:text-gray-400 break-all">{{ $user->email }}</div>
+                                    <div class="text-gray-500 break-all">{{ $user->email }}</div>
                                 </td>
                                 <td class="inline-block md:table-cell mt-2 md:mt-0 md:px-6 md:py-4 align-middle">
                                     <x-badge>{{ $user->side->label() }}</x-badge>
@@ -99,7 +99,7 @@
                                             <form method="POST" action="{{ route('admin.users.deactivation.destroy', $user) }}">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="inline-flex items-center rounded-md border border-green-600 bg-white dark:bg-gray-800 py-2 px-4 text-sm text-green-700 dark:text-green-400 shadow-sm hover:bg-green-50">{{ __('users.actions.reactivate') }}</button>
+                                                <button type="submit" class="inline-flex items-center rounded-md border border-green-600 bg-white py-2 px-4 text-sm text-green-700 shadow-sm hover:bg-green-50">{{ __('users.actions.reactivate') }}</button>
                                             </form>
                                         @endcan
                                     </div>

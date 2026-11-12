@@ -22,12 +22,12 @@
     }
 
     $box = 'inline-flex items-center justify-center w-9 h-9 rounded-md text-sm';
-    $link = $box.' border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700';
-    $disabled = $box.' border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-400 cursor-not-allowed';
+    $link = $box.' border border-gray-300 bg-white text-gray-700 hover:bg-gray-50';
+    $disabled = $box.' border border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed';
 @endphp
 
 <div class="flex flex-wrap items-center justify-between gap-4 pt-4">
-    <p class="text-sm text-gray-700 dark:text-gray-300">
+    <p class="text-sm text-gray-700">
         {{ __('app.pagination.showing', ['from' => $paginator->firstItem() ?? 0, 'to' => $paginator->lastItem() ?? 0, 'total' => number_format($paginator->total())]) }}
     </p>
 

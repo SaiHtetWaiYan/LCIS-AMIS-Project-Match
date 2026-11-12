@@ -7,16 +7,15 @@
 @endphp
 
 <header class="fixed top-0 inset-x-0 z-50">
-    <nav x-data="{ mobileOpen: false }" class="block w-full px-4 py-2 bg-white dark:bg-gray-800 shadow-md lg:px-8 lg:py-3">
-        <div class="container mx-auto flex flex-wrap items-center justify-between text-slate-800 dark:text-gray-100">
-            <a href="{{ route('dashboard') }}" class="mr-4 flex items-center py-1.5 text-base font-semibold text-slate-600 dark:text-gray-200">
-                <img src="{{ asset('img/logo/logo_transparent_x64.png') }}" alt="" class="h-8 w-8 dark:hidden">
-                <img src="{{ asset('img/logo/logo_white_x64.png') }}" alt="" class="hidden h-8 w-8 dark:block">
+    <nav x-data="{ mobileOpen: false }" class="block w-full px-4 py-2 bg-white shadow-md lg:px-8 lg:py-3">
+        <div class="container mx-auto flex flex-wrap items-center justify-between text-slate-800">
+            <a href="{{ route('dashboard') }}" class="mr-4 flex items-center py-1.5 text-base font-semibold text-slate-600">
+                <img src="{{ asset('img/logo/logo_transparent_x64.png') }}" alt="" class="h-8 w-8">
                 <span class="ml-2 whitespace-nowrap">{{ __('app.short_name') }}</span>
             </a>
 
             <button type="button" @click="mobileOpen = ! mobileOpen" :aria-expanded="mobileOpen.toString()"
-                class="lg:hidden inline-flex items-center justify-center rounded-md border border-gray-200 dark:border-gray-600 p-2 text-slate-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                class="lg:hidden inline-flex items-center justify-center rounded-md border border-gray-200 p-2 text-slate-600 hover:bg-gray-100"
                 aria-label="{{ __('app.nav.toggle') }}">
                 <svg x-show="! mobileOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -33,8 +32,8 @@
                             <a href="{{ route($link['route']) }}"
                                 @class([
                                     'flex items-center p-1 text-sm',
-                                    'font-semibold text-slate-900 dark:text-white border-b-2 border-green-500' => request()->routeIs($link['active']),
-                                    'text-slate-600 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white' => ! request()->routeIs($link['active']),
+                                    'font-semibold text-slate-900 border-b-2 border-green-500' => request()->routeIs($link['active']),
+                                    'text-slate-600 hover:text-slate-900' => ! request()->routeIs($link['active']),
                                 ])
                                 @if (request()->routeIs($link['active'])) aria-current="page" @endif>
                                 {{ $link['label'] }}
@@ -47,8 +46,8 @@
             <div class="hidden lg:flex items-center">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="inline-flex items-center gap-2 rounded-full text-sm text-slate-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none">
-                            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-gray-100 dark:bg-gray-700 text-sm font-semibold text-blue-gray-500 dark:text-gray-200">
+                        <button class="inline-flex items-center gap-2 rounded-full text-sm text-slate-600 hover:text-gray-900 focus:outline-none">
+                            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-gray-100 text-sm font-semibold text-blue-gray-500">
                                 {{ mb_strtoupper(mb_substr(Auth::user()->name, 0, 1)) }}
                             </span>
                             <span class="max-w-[12rem] truncate">{{ Auth::user()->name }}</span>
@@ -59,7 +58,7 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <div class="px-4 py-2 text-xs text-gray-500 dark:text-gray-400">{{ Auth::user()->side->label() }}</div>
+                        <div class="px-4 py-2 text-xs text-gray-500">{{ Auth::user()->side->label() }}</div>
                         <x-dropdown-link :href="route('profile.edit')">{{ __('app.nav.account') }}</x-dropdown-link>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -72,17 +71,17 @@
             </div>
         </div>
 
-        <div x-show="mobileOpen" x-transition x-cloak class="lg:hidden border-t border-gray-100 dark:border-gray-700 mt-3 pt-3">
+        <div x-show="mobileOpen" x-transition x-cloak class="lg:hidden border-t border-gray-100 mt-3 pt-3">
             <div class="container mx-auto space-y-4">
-                <ul class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2">
+                <ul class="rounded-lg border border-gray-200 bg-white py-2">
                     @foreach ($links as $link)
                         @if ($link['visible'])
                             <li>
                                 <a href="{{ route($link['route']) }}"
                                     @class([
                                         'block px-4 py-2 text-sm',
-                                        'font-semibold text-slate-900 dark:text-white bg-gray-50 dark:bg-gray-700' => request()->routeIs($link['active']),
-                                        'text-slate-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700' => ! request()->routeIs($link['active']),
+                                        'font-semibold text-slate-900 bg-gray-50' => request()->routeIs($link['active']),
+                                        'text-slate-700 hover:bg-gray-50' => ! request()->routeIs($link['active']),
                                     ])>
                                     {{ $link['label'] }}
                                 </a>
@@ -91,14 +90,14 @@
                     @endforeach
                 </ul>
 
-                <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3">
-                    <div class="flex items-center justify-between text-sm text-slate-700 dark:text-gray-300">
+                <div class="rounded-lg border border-gray-200 bg-white px-4 py-3">
+                    <div class="flex items-center justify-between text-sm text-slate-700">
                         <span class="font-medium">{{ Auth::user()->name }} · {{ Auth::user()->side->label() }}</span>
-                        <a href="{{ route('profile.edit') }}" class="rounded-md px-2 py-1 hover:bg-gray-50 dark:hover:bg-gray-700">{{ __('app.nav.account') }}</a>
+                        <a href="{{ route('profile.edit') }}" class="rounded-md px-2 py-1 hover:bg-gray-50">{{ __('app.nav.account') }}</a>
                     </div>
                     <form method="POST" action="{{ route('logout') }}" class="mt-3">
                         @csrf
-                        <button type="submit" class="w-full rounded-md bg-slate-100 dark:bg-gray-700 px-3 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-200 dark:hover:bg-gray-600">
+                        <button type="submit" class="w-full rounded-md bg-slate-100 px-3 py-2 text-sm text-slate-700 hover:bg-slate-200">
                             {{ __('app.nav.logout') }}
                         </button>
                     </form>

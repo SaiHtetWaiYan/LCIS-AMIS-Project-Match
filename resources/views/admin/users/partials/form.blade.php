@@ -26,8 +26,8 @@
                 @endforeach
             </x-select-input>
         @else
-            <p id="side" class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ $user->side->label() }}</p>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('users.hints.own_side') }}</p>
+            <p id="side" class="mt-1 text-sm text-gray-900">{{ $user->side->label() }}</p>
+            <p class="mt-1 text-sm text-gray-500">{{ __('users.hints.own_side') }}</p>
         @endif
         <x-input-error class="mt-2" :messages="$errors->get('side')" />
     </div>
@@ -36,7 +36,7 @@
         <x-input-label for="password" :value="__('users.fields.password')" />
         <x-text-input id="password" name="password" type="password" class="mt-1 block w-full" :required="! $isEdit" autocomplete="new-password" />
         @if ($isEdit)
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('users.hints.password_keep') }}</p>
+            <p class="mt-1 text-sm text-gray-500">{{ __('users.hints.password_keep') }}</p>
         @endif
         <x-input-error class="mt-2" :messages="$errors->get('password')" />
     </div>
@@ -48,7 +48,7 @@
 
     <div class="flex items-center gap-4">
         <x-primary-button>{{ __('users.actions.save') }}</x-primary-button>
-        <a href="{{ route('admin.users.index') }}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 underline">
+        <a href="{{ route('admin.users.index') }}" class="text-sm text-gray-600 hover:text-gray-900 underline">
             {{ __('users.actions.cancel') }}
         </a>
     </div>
