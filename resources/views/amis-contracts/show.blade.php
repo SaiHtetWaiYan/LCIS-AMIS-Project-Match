@@ -18,6 +18,13 @@
         </div>
     </x-slot>
 
+    @if ($contract->activeMatch)
+        <div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+            <span>{{ __('matches.banner.'.$contract->activeMatch->status->value) }}</span>
+            <x-link-button variant="view" :href="route('matches.show', $contract->activeMatch)">{{ __('matches.buttons.view') }} #{{ $contract->activeMatch->id }}</x-link-button>
+        </div>
+    @endif
+
     <x-card :title="__('amis.contract')">
         <dl class="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
             <x-field :label="__('amis.fields.partners')">{{ implode(', ', $contract->partner_names) }}</x-field>
@@ -77,7 +84,7 @@
         @endif
     </x-card>
 
-    @include('matching.panel', ['otherSide' => 'lcis'])
+    @include('matching.panel', ['otherSide' => 'lcis', 'subject' => $contract])
 
     <x-raw-data :raw="$contract->raw" />
 </x-app-layout>

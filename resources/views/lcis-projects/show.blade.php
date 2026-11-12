@@ -15,6 +15,13 @@
         </div>
     </x-slot>
 
+    @if ($project->activeMatch)
+        <div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+            <span>{{ __('matches.banner.'.$project->activeMatch->status->value) }}</span>
+            <x-link-button variant="view" :href="route('matches.show', $project->activeMatch)">{{ __('matches.buttons.view') }} #{{ $project->activeMatch->id }}</x-link-button>
+        </div>
+    @endif
+
     <x-card :title="__('lcis.project')">
         <dl class="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
             <x-field :label="__('lcis.fields.company')">{{ $project->company_name }}</x-field>
@@ -53,7 +60,7 @@
         @endif
     </x-card>
 
-    @include('matching.panel', ['otherSide' => 'amis'])
+    @include('matching.panel', ['otherSide' => 'amis', 'subject' => $project])
 
     <x-raw-data :raw="$project->raw" />
 </x-app-layout>

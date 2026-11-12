@@ -29,11 +29,12 @@ class ListLcisProjectsRequest extends FormRequest
             'province' => ['nullable', 'integer', 'min:1'],
             'type' => ['nullable', 'integer', 'min:1'],
             'source' => ['nullable', Rule::in(['present', 'missing'])],
+            'match' => ['nullable', Rule::in(['unmatched', 'proposed', 'matched'])],
         ];
     }
 
     /**
-     * @return array{search: string, province: ?int, type: ?int, source: ?string}
+     * @return array{search: string, province: ?int, type: ?int, source: ?string, match: ?string}
      */
     public function filters(): array
     {
@@ -42,6 +43,7 @@ class ListLcisProjectsRequest extends FormRequest
             'province' => $this->validated('province') !== null ? (int) $this->validated('province') : null,
             'type' => $this->validated('type') !== null ? (int) $this->validated('type') : null,
             'source' => $this->validated('source'),
+            'match' => $this->validated('match'),
         ];
     }
 }

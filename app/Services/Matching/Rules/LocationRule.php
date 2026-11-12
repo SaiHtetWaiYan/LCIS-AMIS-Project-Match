@@ -99,9 +99,11 @@ class LocationRule implements MatchRule
 
         $parts = [__('matching.reasons.location_province', ['province' => $this->provinces->name($location->province_id)])];
 
-        $parts[] = $best['district']
-            ? __('matching.reasons.location_district', ['district' => $plot->district_name ?? $plot->district_id])
-            : __('matching.reasons.location_other_district', ['lcis' => $location->district_name ?? '—', 'amis' => $plot->district_name ?? '—']);
+        $parts[] = match (true) {
+            $best['district'] => __('matching.reasons.location_district', ['district' => $plot->district_name ?? $plot->district_id]),
+            $location->district_id === null || $plot->district_id === null => __('matching.reasons.location_district_unknown'),
+            default => __('matching.reasons.location_other_district', ['lcis' => $location->district_name ?? $location->district_id, 'amis' => $plot->district_name ?? $plot->district_id]),
+        };
 
         if ($best['village']) {
             $parts[] = __('matching.reasons.location_village', ['village' => $plot->village]);

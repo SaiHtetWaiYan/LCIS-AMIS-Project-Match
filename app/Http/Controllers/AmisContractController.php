@@ -18,12 +18,13 @@ class AmisContractController extends Controller
 
         $contracts = AmisContract::query()
             ->select(['id', 'contract_type', 'contract_number', 'contract_name', 'partner_names', 'status', 'from_province_id', 'area_ha', 'missing_since', 'starts_on', 'ends_on'])
-            ->with(['items:id,amis_contract_id,province_id,district_id,district_name', 'companies:id,name_lao,name_eng'])
+            ->with(['items:id,amis_contract_id,province_id,district_id,district_name', 'companies:id,name_lao,name_eng', 'activeMatch:id,amis_contract_id,status,needs_review'])
             ->when($filters['search'] !== '', fn ($query) => $query->search($filters['search']))
             ->when($filters['province'], fn ($query, int $provinceId) => $query->inProvince($provinceId))
             ->when($filters['type'], fn ($query, string $type) => $query->where('contract_type', $type))
             ->when($filters['status'], fn ($query, string $status) => $query->where('status', $status))
             ->when($filters['source'], fn ($query, string $source) => $query->presentInSource($source === 'present'))
+            ->when($filters['match'], fn ($query, string $match) => $query->withMatchStatus($match))
             ->orderByDesc('id')
             ->paginate(25)
             ->withQueryString();
@@ -41,7 +42,7 @@ class AmisContractController extends Controller
     {
         Gate::authorize('view', $amisContract);
 
-        $amisContract->load(['items', 'companies']);
+        $amisContract->load(['items', 'companies', 'activeMatch']);
         $searchTerm = $request->searchTerm();
 
         return view('amis-contracts.show', [

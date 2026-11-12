@@ -26,6 +26,7 @@ return [
         'location_province' => 'Same province (:province)',
         'location_district' => 'same district (:district)',
         'location_other_district' => 'different district (LCIS :lcis, AMIS :amis)',
+        'location_district_unknown' => 'district not recorded on one side',
         'location_village' => 'similar village (:village)',
         'location_none' => 'Different provinces (LCIS :lcis, AMIS :amis)',
         'location_fallback' => '[LCIS responsible office, not land location]',

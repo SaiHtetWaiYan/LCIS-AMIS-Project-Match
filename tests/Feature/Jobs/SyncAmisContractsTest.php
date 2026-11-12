@@ -8,6 +8,7 @@ use App\Jobs\SyncAmisContracts;
 use App\Models\AmisCompany;
 use App\Models\AmisContract;
 use App\Models\AmisContractItem;
+use App\Models\ProjectMatch;
 use App\Models\SyncRun;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
@@ -100,6 +101,19 @@ class SyncAmisContractsTest extends TestCase
         $this->assertNotNull(AmisCompany::findOrFail(954)->missing_since);
         $this->assertNull(AmisContract::findOrFail(252)->missing_since);
         $this->assertSame(0, DB::table('amis_company_contract')->count());
+    }
+
+    public function test_flags_a_confirmed_match_for_review_when_its_contract_disappears(): void
+    {
+        $this->fakeAmis(contracts: [$this->fixture('amis/rent_land_company_linked.json')]);
+        SyncAmisContracts::dispatchSync();
+        $match = ProjectMatch::factory()->matched()->create(['amis_contract_id' => 444]);
+        $this->fakeAmis(contracts: []);
+
+        SyncAmisContracts::dispatchSync();
+
+        $this->assertSame(1, SyncRun::latest('id')->first()->details['flagged_for_review']);
+        $this->assertSame(['amis_missing'], $match->refresh()->review_reasons);
     }
 
     public function test_records_the_amis_api_key_error_code_when_the_key_has_expired(): void

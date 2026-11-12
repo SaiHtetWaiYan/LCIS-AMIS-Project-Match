@@ -18,11 +18,12 @@ class LcisProjectController extends Controller
 
         $projects = LcisProject::query()
             ->select(['id', 'project_code', 'activity_name', 'project_type', 'status', 'company_id', 'company_name', 'area_ha', 'missing_since', 'source_updated_at'])
-            ->with(['locations', 'company:id,name_eng'])
+            ->with(['locations', 'company:id,name_eng', 'activeMatch:id,lcis_project_id,status,needs_review'])
             ->when($filters['search'] !== '', fn ($query) => $query->search($filters['search']))
             ->when($filters['province'], fn ($query, int $provinceId) => $query->inProvince($provinceId))
             ->when($filters['type'], fn ($query, int $typeId) => $query->where('project_type_id', $typeId))
             ->when($filters['source'], fn ($query, string $source) => $query->presentInSource($source === 'present'))
+            ->when($filters['match'], fn ($query, string $match) => $query->withMatchStatus($match))
             ->orderByDesc('source_updated_at')
             ->orderByDesc('id')
             ->paginate(25)
@@ -40,7 +41,7 @@ class LcisProjectController extends Controller
     {
         Gate::authorize('view', $lcisProject);
 
-        $lcisProject->load(['locations', 'company']);
+        $lcisProject->load(['locations', 'company', 'activeMatch']);
         $searchTerm = $request->searchTerm();
 
         return view('lcis-projects.show', [

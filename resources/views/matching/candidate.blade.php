@@ -1,5 +1,7 @@
 {{-- One suggested or searched record from the other system with its score breakdown. --}}
-@php($record = $candidate->record)
+@php
+    $record = $candidate->record;
+@endphp
 
 <li class="py-5 first:pt-0 border-b border-blue-gray-50 last:border-0">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -28,7 +30,22 @@
             @endif
         </div>
 
-        <x-match-score :card="$candidate->score" class="shrink-0" />
+        <div class="flex shrink-0 flex-col items-stretch gap-3 sm:w-48">
+            <x-match-score :card="$candidate->score" />
+            @php
+                [$pairProject, $pairContract] = $record instanceof App\Models\AmisContract ? [$subject, $record] : [$record, $subject];
+            @endphp
+            @if ($record->activeMatch)
+                <x-match-badge :match="$record->activeMatch" />
+            @elseif (auth()->user()->can('create', [App\Models\ProjectMatch::class, $pairProject, $pairContract]))
+                <form method="POST" action="{{ route('matches.store') }}">
+                    @csrf
+                    <input type="hidden" name="lcis_project_id" value="{{ $pairProject->id }}">
+                    <input type="hidden" name="amis_contract_id" value="{{ $pairContract->id }}">
+                    <button type="submit" class="w-full inline-flex justify-center items-center rounded-lg bg-gray-700 py-2 px-4 text-xs font-bold uppercase text-white shadow-md hover:bg-gray-900">{{ __('matches.buttons.propose') }}</button>
+                </form>
+            @endif
+        </div>
     </div>
 
     <x-rule-outcomes :card="$candidate->score" class="mt-3" />

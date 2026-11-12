@@ -73,6 +73,20 @@ class LocationRuleTest extends TestCase
         $this->assertStringContainsString('[LCIS responsible office, not land location]', $result->reason);
     }
 
+    public function test_says_the_district_is_unknown_rather_than_different_when_one_side_lacks_it(): void
+    {
+        $project = LcisProject::factory()->create();
+        LcisProjectLocation::factory()->for($project, 'project')->create(['province_id' => 14, 'district_id' => null, 'district_name' => null, 'village_name' => null]);
+        $contract = AmisContract::factory()->create();
+        AmisContractItem::factory()->for($contract, 'contract')->create(['province_id' => 14, 'district_id' => 1401, 'village' => null]);
+
+        $result = app(LocationRule::class)->evaluate($this->pair($project, $contract));
+
+        $this->assertEqualsWithDelta(0.5, $result->score, 0.0001);
+        $this->assertStringContainsString('district not recorded on one side', $result->reason);
+        $this->assertStringNotContainsString('different district', $result->reason);
+    }
+
     public function test_has_no_score_when_the_contract_has_no_plot_with_a_province(): void
     {
         $project = LcisProject::factory()->create();

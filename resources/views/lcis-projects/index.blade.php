@@ -2,7 +2,7 @@
     <x-slot name="title">{{ __('lcis.projects') }}</x-slot>
 
     <x-card :title="__('app.filters.title')">
-        <form method="GET" action="{{ route('lcis-projects.index') }}" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <form method="GET" action="{{ route('lcis-projects.index') }}" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
             <div class="lg:col-span-2">
                 <x-input-label for="search" :value="__('app.filters.search')" />
                 <x-text-input id="search" name="search" type="search" class="mt-1 block w-full" :value="$filters['search']" :placeholder="__('lcis.search_hint')" />
@@ -34,6 +34,15 @@
                     @endforeach
                 </x-select-input>
             </div>
+            <div>
+                <x-input-label for="match" :value="__('app.filters.match_status')" />
+                <x-select-input id="match" name="match" class="mt-1 block w-full">
+                    <option value="">{{ __('app.filters.any_match_status') }}</option>
+                    @foreach (['unmatched', 'proposed', 'matched'] as $matchStatus)
+                        <option value="{{ $matchStatus }}" @selected($filters['match'] === $matchStatus)>{{ __('app.filters.'.$matchStatus) }}</option>
+                    @endforeach
+                </x-select-input>
+            </div>
             <div class="flex items-end justify-end gap-3 sm:col-span-2 lg:col-span-5">
                 <a href="{{ route('lcis-projects.index') }}"><x-secondary-button>{{ __('app.filters.reset') }}</x-secondary-button></a>
                 <x-primary-button>{{ __('app.filters.apply') }}</x-primary-button>
@@ -53,6 +62,7 @@
                         <td class="block md:table-cell md:px-6 md:py-4 align-top">
                             <div class="flex flex-wrap items-center gap-2">
                                 <span class="font-mono text-xs text-gray-500">{{ $project->project_code ?? '#'.$project->id }}</span>
+                                <x-match-badge :match="$project->activeMatch" />
                                 @if ($project->isMissingFromSource())
                                     <x-badge tone="red">{{ __('app.filters.missing') }}</x-badge>
                                 @endif

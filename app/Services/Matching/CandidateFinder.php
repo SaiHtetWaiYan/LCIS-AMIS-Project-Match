@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\DB;
  *
  * A pool is gathered cheaply — records with a similar name or activity (pg_trgm index) plus
  * records sharing a province — then every pool record is scored by the configured rules and
- * the best are returned. Records missing from their source are never suggested.
+ * the best are returned. Records missing from their source or already in a proposed or matched
+ * pair are never suggested (manual search still shows the latter, marked).
  */
 class CandidateFinder
 {
@@ -37,7 +38,7 @@ class CandidateFinder
             $project->locations->pluck('district_id')->filter()->unique()->all(),
         );
 
-        $contracts = $this->amisQuery()->whereIn('id', $poolIds)->get();
+        $contracts = $this->amisQuery()->whereDoesntHave('activeMatch')->whereIn('id', $poolIds)->get();
 
         return $this->best($this->scoreAmisContracts($project, $contracts), $limit);
     }
@@ -56,7 +57,7 @@ class CandidateFinder
             $contract->items->pluck('district_id')->filter()->unique()->all(),
         );
 
-        $projects = $this->lcisQuery()->whereIn('id', $poolIds)->get();
+        $projects = $this->lcisQuery()->whereDoesntHave('activeMatch')->whereIn('id', $poolIds)->get();
 
         return $this->best($this->scoreLcisProjects($contract, $projects), $limit);
     }
@@ -102,7 +103,7 @@ class CandidateFinder
      */
     public function amisQuery(): Builder
     {
-        return AmisContract::query()->presentInSource()->with(['items', 'companies:id,name_lao,name_eng']);
+        return AmisContract::query()->presentInSource()->with(['items', 'companies:id,name_lao,name_eng', 'activeMatch']);
     }
 
     /**
@@ -110,7 +111,7 @@ class CandidateFinder
      */
     public function lcisQuery(): Builder
     {
-        return LcisProject::query()->presentInSource()->with(['locations', 'company:id,name_eng']);
+        return LcisProject::query()->presentInSource()->with(['locations', 'company:id,name_eng', 'activeMatch']);
     }
 
     /**

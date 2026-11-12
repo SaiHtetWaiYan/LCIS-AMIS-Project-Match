@@ -2,7 +2,7 @@
     <x-slot name="title">{{ __('amis.contracts') }}</x-slot>
 
     <x-card :title="__('app.filters.title')">
-        <form method="GET" action="{{ route('amis-contracts.index') }}" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
+        <form method="GET" action="{{ route('amis-contracts.index') }}" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-7">
             <div class="lg:col-span-2">
                 <x-input-label for="search" :value="__('app.filters.search')" />
                 <x-text-input id="search" name="search" type="search" class="mt-1 block w-full" :value="$filters['search']" :placeholder="__('amis.search_hint')" />
@@ -43,6 +43,15 @@
                     @endforeach
                 </x-select-input>
             </div>
+            <div>
+                <x-input-label for="match" :value="__('app.filters.match_status')" />
+                <x-select-input id="match" name="match" class="mt-1 block w-full">
+                    <option value="">{{ __('app.filters.any_match_status') }}</option>
+                    @foreach (['unmatched', 'proposed', 'matched'] as $matchStatus)
+                        <option value="{{ $matchStatus }}" @selected($filters['match'] === $matchStatus)>{{ __('app.filters.'.$matchStatus) }}</option>
+                    @endforeach
+                </x-select-input>
+            </div>
             <div class="flex items-end justify-end gap-3 sm:col-span-2 lg:col-span-6">
                 <a href="{{ route('amis-contracts.index') }}"><x-secondary-button>{{ __('app.filters.reset') }}</x-secondary-button></a>
                 <x-primary-button>{{ __('app.filters.apply') }}</x-primary-button>
@@ -66,6 +75,7 @@
                                 @if ($contract->status && $contract->status !== 'nomal')
                                     <x-badge tone="amber">{{ __('amis.statuses.'.$contract->status) }}</x-badge>
                                 @endif
+                                <x-match-badge :match="$contract->activeMatch" />
                                 @if ($contract->isMissingFromSource())
                                     <x-badge tone="red">{{ __('app.filters.missing') }}</x-badge>
                                 @endif

@@ -37,11 +37,12 @@ class ListAmisContractsRequest extends FormRequest
             'type' => ['nullable', Rule::in(self::CONTRACT_TYPES)],
             'status' => ['nullable', Rule::in(self::STATUSES)],
             'source' => ['nullable', Rule::in(['present', 'missing'])],
+            'match' => ['nullable', Rule::in(['unmatched', 'proposed', 'matched'])],
         ];
     }
 
     /**
-     * @return array{search: string, province: ?int, type: ?string, status: ?string, source: ?string}
+     * @return array{search: string, province: ?int, type: ?string, status: ?string, source: ?string, match: ?string}
      */
     public function filters(): array
     {
@@ -51,6 +52,7 @@ class ListAmisContractsRequest extends FormRequest
             'type' => $this->validated('type'),
             'status' => $this->validated('status'),
             'source' => $this->validated('source'),
+            'match' => $this->validated('match'),
         ];
     }
 }

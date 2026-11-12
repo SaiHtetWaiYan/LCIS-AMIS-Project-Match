@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\MatchStatus;
 use App\Services\Matching\TextNormalizer;
 use App\Support\LikePattern;
 use Database\Factories\AmisContractFactory;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\DB;
 
@@ -55,6 +57,37 @@ class AmisContract extends Model
     public function companies(): BelongsToMany
     {
         return $this->belongsToMany(AmisCompany::class, 'amis_company_contract')->withPivot('shareholding_pct');
+    }
+
+    /**
+     * @return HasMany<ProjectMatch, $this>
+     */
+    public function matches(): HasMany
+    {
+        return $this->hasMany(ProjectMatch::class, 'amis_contract_id');
+    }
+
+    /**
+     * The proposed or matched pair holding this record, if any.
+     *
+     * @return HasOne<ProjectMatch, $this>
+     */
+    public function activeMatch(): HasOne
+    {
+        return $this->hasOne(ProjectMatch::class, 'amis_contract_id')->whereIn('status', MatchStatus::active());
+    }
+
+    /**
+     * unmatched: in no active pair; proposed / matched: in an active pair with that status.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function withMatchStatus(Builder $query, string $status): void
+    {
+        $status === 'unmatched'
+            ? $query->whereDoesntHave('activeMatch')
+            : $query->whereHas('activeMatch', fn (Builder $query) => $query->where('status', $status));
     }
 
     /**
