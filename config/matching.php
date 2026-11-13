@@ -116,15 +116,18 @@ return [
     |--------------------------------------------------------------------------
     |
     | A pair cannot score above total_at_most when the activities are less
-    | similar than activity_below (same company, different project), or when
-    | no province matches (only where LCIS has the real land location, not
-    | just the responsible office). Capped pairs stay listed, just lower.
+    | similar than activity_below (same company, different project), when the
+    | company names are less similar than company_below (same kind of project,
+    | different company), or when no province matches (only where LCIS has
+    | the real land location, not just the responsible office). Capped pairs
+    | stay listed, just lower.
     |
     */
 
     'caps' => [
         'total_at_most' => 0.4,
         'activity_below' => 0.2,
+        'company_below' => 0.2,
     ],
 
     /*

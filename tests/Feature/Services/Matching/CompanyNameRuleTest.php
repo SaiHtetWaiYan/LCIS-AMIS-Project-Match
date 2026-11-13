@@ -97,4 +97,23 @@ class CompanyNameRuleTest extends TestCase
 
         $this->assertSame(1.0, app(CompanyNameRule::class)->evaluate($this->pairFor($project, $contract))->score);
     }
+
+    public function test_caps_the_total_when_the_companies_clearly_differ(): void
+    {
+        $project = LcisProject::factory()->create(['company_name' => 'ບໍລິສັດ ຮ່ວາຟາດ - ລາວ ຈຳກັດ']);
+        $contract = AmisContract::factory()->create(['partner_names' => ['ບໍລິສັດ ຂຸດຄົ້ນບໍ່ແຮ່ ຕຸ່ມຮ່ວງ ລາວ-ຈີນ ຈຳກັດ']]);
+
+        $result = app(CompanyNameRule::class)->evaluate($this->pairFor($project, $contract));
+
+        $this->assertLessThan(0.2, $result->score);
+        $this->assertSame(0.4, $result->capsTotalAt);
+    }
+
+    public function test_does_not_cap_matching_companies(): void
+    {
+        $project = LcisProject::factory()->create(['company_name' => 'ບໍລິສັດ ຊັນເປເປີ້ ສະຫວັນນະເຂດ ຈຳກັດ']);
+        $contract = AmisContract::factory()->create(['partner_names' => ['ບໍລິສັດຊັນເປເປີ້ໂຮນດິ້ງຈໍາກັດ']]);
+
+        $this->assertNull(app(CompanyNameRule::class)->evaluate($this->pairFor($project, $contract))->capsTotalAt);
+    }
 }

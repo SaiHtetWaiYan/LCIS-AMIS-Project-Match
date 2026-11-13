@@ -56,7 +56,7 @@ return [
         'other_rule' => 'See the reason shown with the score.',
         'colors' => 'Colours: green 75% and above (strong), amber 50–74% (check carefully), grey below 50%.',
         'rules_with_data' => '“3 of 4 rules had data” tells you how much the score rests on. A high score from one rule is weak evidence.',
-        'caps' => 'Some disagreements outweigh the average: completely different activities, or different provinces (when LCIS has the land location). The total is then capped at :cap% and the score says “Capped”.',
+        'caps' => 'Some disagreements outweigh the average: completely different company names, completely different activities, or different provinces (when LCIS has the land location). The total is then capped at :cap% and the score says “Capped”.',
         'pending' => 'Until LCIS sends land area and land locations, the area rule has no data and location uses the LCIS responsible office.',
         'example_title' => 'Example',
         'example' => 'Company 100%, activity 100%, location 50%, area no data → (100×35 + 100×25 + 50×20) ÷ (35+25+20) = 87%.',

@@ -19,4 +19,13 @@ class CompanyNameRule extends TextSimilarityRule
     {
         return MatchTermIndex::KIND_NAME;
     }
+
+    /**
+     * Many companies run the same kind of project (an iron ore plant, a coffee plantation), so a
+     * matching activity alone must not make a strong suggestion when the companies clearly differ.
+     */
+    protected function capBelow(): ?float
+    {
+        return (float) config('matching.caps.company_below');
+    }
 }

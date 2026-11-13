@@ -19,6 +19,11 @@ abstract class TextSimilarityRule implements MatchRule
 
     abstract protected function kind(): string;
 
+    /**
+     * Below this similarity the pair's total is capped at matching.caps.total_at_most; null never caps.
+     */
+    abstract protected function capBelow(): ?float;
+
     public function evaluate(MatchPair $pair): ?RuleResult
     {
         $match = $pair->bestTextMatch($this->kind());
@@ -34,7 +39,10 @@ abstract class TextSimilarityRule implements MatchRule
             'amis_text' => $match->amisText,
         ]);
 
-        return new RuleResult($match->score, $match->numbersDiffer ? $reason.' '.__('matching.reasons.numbers_differ') : $reason);
+        $capBelow = $this->capBelow();
+        $capsTotalAt = $capBelow !== null && $match->score < $capBelow ? (float) config('matching.caps.total_at_most') : null;
+
+        return new RuleResult($match->score, $match->numbersDiffer ? $reason.' '.__('matching.reasons.numbers_differ') : $reason, $capsTotalAt);
     }
 
     public function values(MatchPair $pair): RuleValues
