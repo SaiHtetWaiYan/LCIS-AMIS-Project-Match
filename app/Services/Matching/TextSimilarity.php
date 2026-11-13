@@ -51,8 +51,8 @@ class TextSimilarity
             }
 
             $best[(int) $row->other_id][$row->kind] = $side === SyncSource::Lcis
-                ? new TextMatch($score, $row->self_source, $row->self_text, $row->other_source, $row->other_text, $numbersDiffer)
-                : new TextMatch($score, $row->other_source, $row->other_text, $row->self_source, $row->self_text, $numbersDiffer);
+                ? new TextMatch($score, $row->self_source, $row->self_text, $row->other_source, $row->other_text, $numbersDiffer, $row->self_norm, $row->other_norm)
+                : new TextMatch($score, $row->other_source, $row->other_text, $row->self_source, $row->self_text, $numbersDiffer, $row->other_norm, $row->self_norm);
         }
 
         return $best;

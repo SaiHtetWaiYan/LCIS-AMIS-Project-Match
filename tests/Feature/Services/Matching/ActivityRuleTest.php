@@ -22,7 +22,7 @@ class ActivityRuleTest extends TestCase
         $result = app(ActivityRule::class)->evaluate($this->pairFor($project, $contract));
 
         $this->assertSame(1.0, $result->score);
-        $this->assertSame('LCIS activity “ໂຄງການ ປູກກາເຟ” ↔ AMIS contract name “ສັນຍາ ປູກກາເຟ”', $result->reason);
+        $this->assertSame('LCIS activity “ໂຄງການ ປູກກາເຟ” ↔ AMIS contract name “ສັນຍາ ປູກກາເຟ” · compared: “ປູກກາເຟ” ↔ “ປູກກາເຟ”', $result->reason);
     }
 
     public function test_matches_a_land_use_detail_when_it_is_closer_than_the_contract_name(): void
@@ -73,5 +73,26 @@ class ActivityRuleTest extends TestCase
 
         $this->assertLessThan(0.1, $result->score);
         $this->assertSame(0.4, $result->capsTotalAt);
+    }
+
+    public function test_shows_the_compared_text_when_common_words_were_ignored(): void
+    {
+        $project = LcisProject::factory()->create(['activity_name' => 'ໂຮງງານຜະລິດ ແລະ ປຸງແຕ່ງແຮ່ເຫຼັກ']);
+        $contract = AmisContract::factory()->create(['contract_name' => 'ໂຮງງານປຸງແຕ່ງແຮ່ເຫຼັກ']);
+
+        $result = app(ActivityRule::class)->evaluate($this->pairFor($project, $contract));
+
+        $this->assertSame(1.0, $result->score);
+        $this->assertStringEndsWith('· compared: “ແຮ່ເຫລັກ” ↔ “ແຮ່ເຫລັກ”', $result->reason);
+    }
+
+    public function test_leaves_out_the_compared_text_when_only_spacing_and_case_changed(): void
+    {
+        $project = LcisProject::factory()->create(['activity_name' => 'ປູກ ກາເຟ']);
+        $contract = AmisContract::factory()->create(['contract_name' => 'ປູກກາເຟ']);
+
+        $result = app(ActivityRule::class)->evaluate($this->pairFor($project, $contract));
+
+        $this->assertStringNotContainsString('compared', $result->reason);
     }
 }

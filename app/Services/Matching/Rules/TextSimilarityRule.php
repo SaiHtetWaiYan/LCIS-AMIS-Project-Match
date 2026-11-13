@@ -39,10 +39,18 @@ abstract class TextSimilarityRule implements MatchRule
             'amis_text' => $match->amisText,
         ]);
 
+        if ($this->wasShortened($match->lcisText, $match->lcisCompared) || $this->wasShortened($match->amisText, $match->amisCompared)) {
+            $reason .= ' '.__('matching.reasons.compared', ['lcis' => $match->lcisCompared, 'amis' => $match->amisCompared]);
+        }
+
+        if ($match->numbersDiffer) {
+            $reason .= ' '.__('matching.reasons.numbers_differ');
+        }
+
         $capBelow = $this->capBelow();
         $capsTotalAt = $capBelow !== null && $match->score < $capBelow ? (float) config('matching.caps.total_at_most') : null;
 
-        return new RuleResult($match->score, $match->numbersDiffer ? $reason.' '.__('matching.reasons.numbers_differ') : $reason, $capsTotalAt);
+        return new RuleResult($match->score, $reason, $capsTotalAt);
     }
 
     public function values(MatchPair $pair): RuleValues
@@ -62,5 +70,20 @@ abstract class TextSimilarityRule implements MatchRule
         $ofKind = array_filter($texts, fn (array $text): bool => $text[0] === $this->kind());
 
         return RuleValues::list(array_map(fn (array $text): array => [$text[2], Lang::has('matching.value_notes.'.$text[1]) ? __('matching.value_notes.'.$text[1]) : null], $ofKind));
+    }
+
+    /**
+     * Whether normalising removed more than case, spacing and punctuation, so the compared text
+     * is worth showing next to the original.
+     */
+    private function wasShortened(string $original, ?string $compared): bool
+    {
+        if ($compared === null) {
+            return false;
+        }
+
+        $letters = fn (string $text): string => (string) preg_replace('/[\s\p{P}\p{S}\x{200B}-\x{200D}\x{2060}\x{FEFF}]+/u', '', mb_strtolower($text));
+
+        return $letters($original) !== $letters($compared);
     }
 }

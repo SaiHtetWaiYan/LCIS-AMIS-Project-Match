@@ -37,7 +37,7 @@ class CompanyNameRuleTest extends TestCase
         $result = app(CompanyNameRule::class)->evaluate($this->pairFor($project, $contract));
 
         $this->assertSame(1.0, $result->score);
-        $this->assertSame('LCIS company (English) “Samphanxay Mining Co., Ltd” ↔ AMIS company (English) “SAMPHANXAY MINING SOLE CO.,LTD”', $result->reason);
+        $this->assertSame('LCIS company (English) “Samphanxay Mining Co., Ltd” ↔ AMIS company (English) “SAMPHANXAY MINING SOLE CO.,LTD” · compared: “samphanxay mining” ↔ “samphanxay mining”', $result->reason);
     }
 
     public function test_uses_partner_names_of_a_legacy_contract_without_company_link(): void

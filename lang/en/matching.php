@@ -41,6 +41,7 @@ return [
         'location_village' => 'similar village (:village)',
         'location_none' => 'Different provinces (LCIS :lcis, AMIS :amis)',
         'location_fallback' => '[LCIS responsible office, not land location]',
+        'compared' => '· compared: “:lcis” ↔ “:amis”',
         'numbers_differ' => '(different project numbers)',
     ],
 
