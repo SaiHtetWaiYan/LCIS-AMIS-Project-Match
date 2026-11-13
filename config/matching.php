@@ -125,7 +125,7 @@ return [
     */
 
     'caps' => [
-        'total_at_most' => 0.4,
+        'total_at_most' => 0.2,
         'activity_below' => 0.2,
         'company_below' => 0.2,
     ],

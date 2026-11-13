@@ -106,7 +106,7 @@ class CompanyNameRuleTest extends TestCase
         $result = app(CompanyNameRule::class)->evaluate($this->pairFor($project, $contract));
 
         $this->assertLessThan(0.2, $result->score);
-        $this->assertSame(0.4, $result->capsTotalAt);
+        $this->assertSame(0.2, $result->capsTotalAt);
     }
 
     public function test_does_not_cap_matching_companies(): void

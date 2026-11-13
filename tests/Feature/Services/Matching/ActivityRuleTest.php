@@ -53,7 +53,7 @@ class ActivityRuleTest extends TestCase
         $result = app(ActivityRule::class)->evaluate($this->pairFor($project, $contract));
 
         $this->assertLessThan(0.2, $result->score);
-        $this->assertSame(0.4, $result->capsTotalAt);
+        $this->assertSame(0.2, $result->capsTotalAt);
     }
 
     public function test_does_not_cap_similar_activities(): void
@@ -72,7 +72,7 @@ class ActivityRuleTest extends TestCase
         $result = app(ActivityRule::class)->evaluate($this->pairFor($project, $contract));
 
         $this->assertLessThan(0.1, $result->score);
-        $this->assertSame(0.4, $result->capsTotalAt);
+        $this->assertSame(0.2, $result->capsTotalAt);
     }
 
     public function test_shows_the_compared_text_when_common_words_were_ignored(): void
