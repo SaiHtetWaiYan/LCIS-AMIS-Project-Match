@@ -87,6 +87,9 @@ return [
             'ລັດວິສາຫະກິດ', 'ວິສາຫະກິດ', 'ທ່ານ', 'ໂຄງການ', 'ສັນຍາ',
             // Sector words shared by most hydropower names; left in, they make different dams look alike.
             'ເຂື່ອນ', 'ໄຟຟ້າ', 'ນ້ຳຕົກ', 'ນ້ຳ', 'ພາວເວີ', 'ພະລັງງານ',
+            // Filler and process words shared by unrelated activities (an iron ore plant vs a sawmill).
+            // Words that tell the kind of work apart (ປູກ, ລ້ຽງ, ຂຸດຄົ້ນ, ສຳຫຼວດ) are kept.
+            'ໂຮງງານ', 'ຜະລິດ', 'ປຸງແຕ່ງ', 'ແລະ', 'ພັດທະນາ', 'ເພື່ອ', 'ກໍ່ສ້າງ', 'ສ້າງ', 'ຈຳໜ່າຍ',
         ],
         'english' => [
             'company', 'co', 'ltd', 'limited', 'sole', 'inc', 'corporation', 'corp', 'enterprise', 'project', 'contract', 'the',

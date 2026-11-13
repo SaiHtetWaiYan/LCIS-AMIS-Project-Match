@@ -63,4 +63,15 @@ class ActivityRuleTest extends TestCase
 
         $this->assertNull(app(ActivityRule::class)->evaluate($this->pairFor($project, $contract))->capsTotalAt);
     }
+
+    public function test_ignores_factory_and_processing_words_shared_by_unrelated_activities(): void
+    {
+        $project = LcisProject::factory()->create(['activity_name' => 'ໂຮງງານຜະລິດ ແລະ ປຸງແຕ່ງແຮ່ເຫຼັກ']);
+        $contract = AmisContract::factory()->create(['contract_name' => 'ໂຮງງານປຸງແຕ່ງໄມ້ ປາກຊັນ (ທ່ານ ສາທິດ)']);
+
+        $result = app(ActivityRule::class)->evaluate($this->pairFor($project, $contract));
+
+        $this->assertLessThan(0.1, $result->score);
+        $this->assertSame(0.4, $result->capsTotalAt);
+    }
 }

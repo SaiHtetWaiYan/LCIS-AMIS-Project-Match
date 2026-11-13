@@ -48,7 +48,7 @@ return [
         'p1' => 'The score suggests; people decide. Each rule compares one field and gives 0–100%. The total is the weighted average of the rules that had data on both sides.',
         'headings' => ['Rule', 'Weight', 'How it scores'],
         'how' => [
-            'CompanyNameRule' => 'How similar the company names are. LCIS company (Lao and English) against AMIS linked companies and partner names. Words like ບໍລິສັດ, ຈຳກັດ, “Co., Ltd” and sector words like ເຂື່ອນ, ໄຟຟ້າ, ນ້ຳ, ພາວເວີ are ignored. Different project numbers (ນ້ຳກົງ 1 vs ນ້ຳກົງ 3) lower the score sharply.',
+            'CompanyNameRule' => 'How similar the company names are. LCIS company (Lao and English) against AMIS linked companies and partner names. Words like ບໍລິສັດ, ຈຳກັດ, “Co., Ltd” and sector words like ເຂື່ອນ, ໄຟຟ້າ, ນ້ຳ, ພາວເວີ, ໂຮງງານ, ປຸງແຕ່ງ are ignored. Different project numbers (ນ້ຳກົງ 1 vs ນ້ຳກົງ 3) lower the score sharply.',
             'ActivityRule' => 'How similar the LCIS activity is to the AMIS contract name or a plot’s land use, ignoring the same words. If the activities have almost nothing in common, the total is capped, even when the company is the same.',
             'LocationRule' => 'Same province :province%, plus same district :district%, plus similar village :village%. The best LCIS location × AMIS plot counts.',
             'AreaRule' => 'Areas in hectares: 100% when within :full% of each other, falling to 0% at :zero% apart.',

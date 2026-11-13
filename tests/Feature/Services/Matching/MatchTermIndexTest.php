@@ -36,12 +36,12 @@ class MatchTermIndexTest extends TestCase
         $contract = AmisContract::factory()->create(['contract_name' => 'ສັນຍາ ປູກກາເຟ', 'partner_names' => ['ບໍລິສັດ ບີເອັມຊີ']]);
         $contract->companies()->attach(AmisCompany::factory()->create(['name_lao' => 'ບໍລິສັດ ຄູນຄຳ', 'name_eng' => null]));
         $contract->companies()->attach(AmisCompany::factory()->missing()->create(['name_lao' => 'ບໍລິສັດ ເກົ່າ', 'name_eng' => null]));
-        AmisContractItem::factory()->for($contract, 'contract')->create(['land_use_detail' => 'ໂຮງງານ']);
+        AmisContractItem::factory()->for($contract, 'contract')->create(['land_use_detail' => 'ໂຮງງານປຸງແຕ່ງໄມ້']);
 
         app(MatchTermIndex::class)->rebuild(SyncSource::Amis);
 
         $this->assertEqualsCanonicalizing(
-            ['amis_contract_name:ປູກກາເຟ', 'amis_company_lao:ຄູນຄຳ', 'amis_partner:ບີເອັມຊີ', 'amis_land_use:ໂຮງງານ'],
+            ['amis_contract_name:ປູກກາເຟ', 'amis_company_lao:ຄູນຄຳ', 'amis_partner:ບີເອັມຊີ', 'amis_land_use:ໄມ້'],
             DB::table('match_terms')->where('side', 'amis')->get()->map(fn ($row) => $row->source.':'.$row->text_norm)->all(),
         );
     }
