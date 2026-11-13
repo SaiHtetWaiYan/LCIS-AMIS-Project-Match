@@ -75,7 +75,7 @@ class MatchTermIndex
      */
     public function amisTexts(AmisContract $contract): array
     {
-        $texts = [[self::KIND_ACTIVITY, 'amis_contract_name', $contract->contract_name]];
+        $texts = [[self::isCompanyName($contract->contract_name) ? self::KIND_NAME : self::KIND_ACTIVITY, 'amis_contract_name', $contract->contract_name]];
 
         foreach ($contract->companies as $company) {
             $texts[] = [self::KIND_NAME, 'amis_company_lao', $company->name_lao];
@@ -91,6 +91,18 @@ class MatchTermIndex
         }
 
         return $texts;
+    }
+
+    /**
+     * Whether a text is a company name (ບໍລິສັດ…) rather than an activity. About a third of AMIS
+     * contracts are named after the company; such a name is compared with company names, not
+     * with LCIS activities.
+     */
+    public static function isCompanyName(?string $text): bool
+    {
+        $compact = (string) preg_replace('/[\s\x{200B}-\x{200D}\x{2060}\x{FEFF}]+/u', '', (string) $text);
+
+        return preg_match('/^(ສະຫະ|ກຸ່ມ)?ບໍລ[ິີ]ສັດ/u', $compact) === 1;
     }
 
     /**

@@ -63,4 +63,26 @@ class MatchTermIndexTest extends TestCase
     {
         $this->assertTrue(app(MatchTermIndex::class)->databaseSupportsLao());
     }
+
+    public function test_indexes_a_contract_named_after_its_company_as_a_name_not_an_activity(): void
+    {
+        $contract = AmisContract::factory()->create(['contract_name' => "ບໍ\u{200B}ລິ\u{200B}ສັດແຮ່ເຫຼັກໂກເອໂກ", 'partner_names' => []]);
+        AmisContractItem::factory()->for($contract, 'contract')->create(['land_use_detail' => 'ໂຮງແຮມປາກຊັນ']);
+
+        app(MatchTermIndex::class)->rebuild(SyncSource::Amis);
+
+        $this->assertEqualsCanonicalizing(
+            ['name:amis_contract_name', 'activity:amis_land_use'],
+            DB::table('match_terms')->where('side', 'amis')->get()->map(fn ($row) => $row->kind.':'.$row->source)->all(),
+        );
+    }
+
+    public function test_recognises_company_names_including_spelling_variants(): void
+    {
+        $this->assertTrue(MatchTermIndex::isCompanyName('ບໍລິສັດ ໂຄລາວ ຣີສອດ ຈໍາກັດ'));
+        $this->assertTrue(MatchTermIndex::isCompanyName('ກຸ່ມບໍລິສັດ ໄຊຊະນະ'));
+        $this->assertTrue(MatchTermIndex::isCompanyName('ບໍລີສັດ ຄຳໝັ້ນ'));
+        $this->assertFalse(MatchTermIndex::isCompanyName('ໂຄງການປູກກາເຟ'));
+        $this->assertFalse(MatchTermIndex::isCompanyName(null));
+    }
 }
