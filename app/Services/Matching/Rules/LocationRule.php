@@ -47,7 +47,10 @@ class LocationRule implements MatchRule
             }
         }
 
-        return new RuleResult($best['score'], $this->reason($best));
+        // Different provinces rule a pair out, unless LCIS only knows its responsible office.
+        $provincesConflict = ! $best['province'] && $locations->every(fn (LcisProjectLocation $location): bool => ! $location->is_fallback);
+
+        return new RuleResult($best['score'], $this->reason($best), $provincesConflict ? (float) config('matching.caps.total_at_most') : null);
     }
 
     public function values(MatchPair $pair): RuleValues

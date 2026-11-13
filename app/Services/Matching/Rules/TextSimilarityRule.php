@@ -27,12 +27,14 @@ abstract class TextSimilarityRule implements MatchRule
             return null;
         }
 
-        return new RuleResult($match->score, __('matching.reasons.text', [
+        $reason = __('matching.reasons.text', [
             'lcis_source' => __('matching.sources.'.$match->lcisSource),
             'lcis_text' => $match->lcisText,
             'amis_source' => __('matching.sources.'.$match->amisSource),
             'amis_text' => $match->amisText,
-        ]));
+        ]);
+
+        return new RuleResult($match->score, $match->numbersDiffer ? $reason.' '.__('matching.reasons.numbers_differ') : $reason);
     }
 
     public function values(MatchPair $pair): RuleValues

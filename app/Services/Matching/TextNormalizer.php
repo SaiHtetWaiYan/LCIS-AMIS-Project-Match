@@ -13,13 +13,42 @@ class TextNormalizer
 {
     private const LAO = '\x{0E80}-\x{0EFF}';
 
+    private const LAO_DIGITS = ['໐' => '0', '໑' => '1', '໒' => '2', '໓' => '3', '໔' => '4', '໕' => '5', '໖' => '6', '໗' => '7', '໘' => '8', '໙' => '9'];
+
+    /**
+     * The project numbers in a normalised text: the "2" of ນ້ຳງື່ມ 2, the "2c" of ນ້ຳງຽບ 2C.
+     *
+     * Only one- and two-digit numbers count, so years and areas are ignored, and so is the
+     * amendment number of a contract (ຄັ້ງທີ 1).
+     *
+     * @return list<string>
+     */
+    public function projectNumbers(string $normalized): array
+    {
+        $text = preg_replace('/ຄັ້ງທີ\s*\d+/u', ' ', $normalized) ?? $normalized;
+        preg_match_all('/(?<![0-9a-z])\d{1,2}[a-z]?(?![0-9a-z])/u', $text, $matches);
+
+        return array_values(array_unique($matches[0]));
+    }
+
+    /**
+     * Whether both texts carry project numbers and none of them are shared.
+     */
+    public function numbersConflict(string $normalizedA, string $normalizedB): bool
+    {
+        $a = $this->projectNumbers($normalizedA);
+        $b = $this->projectNumbers($normalizedB);
+
+        return $a !== [] && $b !== [] && array_intersect($a, $b) === [];
+    }
+
     public function normalize(?string $text): string
     {
         if ($text === null) {
             return '';
         }
 
-        $text = mb_strtolower($text);
+        $text = strtr(mb_strtolower($text), self::LAO_DIGITS);
         $text = preg_replace('/[\x{200B}-\x{200D}\x{2060}\x{FEFF}\x{00AD}]/u', '', $text) ?? $text;
         $text = $this->unifyLaoSpelling($text);
         $text = $this->stripLaoTerms($text);

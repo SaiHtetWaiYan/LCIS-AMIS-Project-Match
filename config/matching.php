@@ -85,10 +85,43 @@ return [
         'lao' => [
             'ສະຫະບໍລິສັດ', 'ບໍລິສັດ', 'ບໍລີສັດ', 'ຈຳກັດຜູ້ດຽວ', 'ຈຳກັດ', 'ຜູ້ດຽວ',
             'ລັດວິສາຫະກິດ', 'ວິສາຫະກິດ', 'ທ່ານ', 'ໂຄງການ', 'ສັນຍາ',
+            // Sector words shared by most hydropower names; left in, they make different dams look alike.
+            'ເຂື່ອນ', 'ໄຟຟ້າ', 'ນ້ຳຕົກ', 'ນ້ຳ', 'ພາວເວີ', 'ພະລັງງານ',
         ],
         'english' => [
             'company', 'co', 'ltd', 'limited', 'sole', 'inc', 'corporation', 'corp', 'enterprise', 'project', 'contract', 'the',
+            'hydropower', 'hydroelectric', 'hydro', 'power', 'electric', 'electricity', 'dam',
         ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Project numbers
+    |--------------------------------------------------------------------------
+    |
+    | Numbers such as the "2" in ນ້ຳງື່ມ 2 or "2C" in ນ້ຳງຽບ 2C tell projects of
+    | the same name apart. When both texts carry numbers and none are shared,
+    | their similarity is multiplied by this factor.
+    |
+    */
+
+    'number_mismatch_factor' => 0.3,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Score caps
+    |--------------------------------------------------------------------------
+    |
+    | A pair cannot score above total_at_most when the activities are less
+    | similar than activity_below (same company, different project), or when
+    | no province matches (only where LCIS has the real land location, not
+    | just the responsible office). Capped pairs stay listed, just lower.
+    |
+    */
+
+    'caps' => [
+        'total_at_most' => 0.4,
+        'activity_below' => 0.2,
     ],
 
     /*

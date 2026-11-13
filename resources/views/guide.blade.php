@@ -80,6 +80,7 @@
                 <ul class="mt-4 list-disc space-y-2 pl-5">
                     <li>{{ __('guide.score.colors') }}</li>
                     <li>{{ __('guide.score.rules_with_data') }}</li>
+                    <li>{{ __('guide.score.caps', ['cap' => (int) round(config('matching.caps.total_at_most') * 100)]) }}</li>
                     <li>{{ __('guide.score.pending') }}</li>
                 </ul>
                 <div class="mt-4 rounded-lg border border-blue-gray-50 bg-blue-gray-50/40 p-3">

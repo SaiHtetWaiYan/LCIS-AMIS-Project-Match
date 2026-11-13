@@ -10,6 +10,7 @@
         default => 'bg-blue-gray-300',
     };
     $isWeak = $card->rulesWithData() <= 1;
+    $cappedBy = collect($card->cappingOutcomes())->pluck('label');
 @endphp
 
 <div {{ $attributes->merge(['class' => 'w-full sm:w-48']) }}>
@@ -26,4 +27,9 @@
             — {{ __('matching.weak_basis') }}
         @endif
     </p>
+    @if ($cappedBy->isNotEmpty())
+        <p class="mt-1 text-xs font-medium text-amber-700">
+            {{ __('matching.capped', ['percent' => $percent, 'rules' => $cappedBy->implode(', ')]) }}
+        </p>
+    @endif
 </div>

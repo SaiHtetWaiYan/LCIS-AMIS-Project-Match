@@ -7,6 +7,7 @@ use App\Models\LcisProject;
 use App\Services\Matching\MatchPair;
 use App\Services\Matching\MatchRule;
 use App\Services\Matching\MatchScorer;
+use App\Services\Matching\RuleOutcome;
 use App\Services\Matching\RuleResult;
 use App\Services\Matching\Rules\AreaRule;
 use App\Services\Matching\RuleValues;
@@ -30,6 +31,26 @@ class MatchScorerTest extends TestCase
         $this->assertSame(3, $card->ruleCount());
         $this->assertNull($card->outcome(NoDataRule::class)->score);
         $this->assertSame('fixed reason', $card->outcome(FixedScoreRule::class)->reason);
+    }
+
+    public function test_a_rule_can_cap_the_total_below_the_weighted_average(): void
+    {
+        config(['matching.rules' => [FixedScoreRule::class => 0.8, CappingRule::class => 0.2]]);
+
+        $card = app(MatchScorer::class)->score($this->pair());
+
+        $this->assertEqualsWithDelta(0.4, $card->total(), 0.000001);
+        $this->assertSame(['Capping'], array_map(fn (RuleOutcome $outcome): string => $outcome->label, $card->cappingOutcomes()));
+    }
+
+    public function test_a_cap_above_the_weighted_average_changes_nothing(): void
+    {
+        config(['matching.rules' => [CappingRule::class => 1.0]]);
+
+        $card = app(MatchScorer::class)->score($this->pair());
+
+        $this->assertEqualsWithDelta(0.1, $card->total(), 0.000001);
+        $this->assertSame([], $card->cappingOutcomes());
     }
 
     public function test_has_no_total_when_no_rule_had_data(): void
@@ -99,6 +120,21 @@ class SecondFixedScoreRule implements MatchRule
     public function evaluate(MatchPair $pair): ?RuleResult
     {
         return new RuleResult(0.5, 'second reason');
+    }
+}
+
+class CappingRule implements MatchRule
+{
+    use HasNoValues;
+
+    public function label(): string
+    {
+        return 'Capping';
+    }
+
+    public function evaluate(MatchPair $pair): ?RuleResult
+    {
+        return new RuleResult(0.1, 'capping reason', 0.4);
     }
 }
 

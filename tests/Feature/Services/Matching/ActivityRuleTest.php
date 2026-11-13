@@ -44,4 +44,23 @@ class ActivityRuleTest extends TestCase
 
         $this->assertNull(app(ActivityRule::class)->evaluate($this->pairFor($project, $contract)));
     }
+
+    public function test_caps_the_total_when_the_activities_have_almost_nothing_in_common(): void
+    {
+        $project = LcisProject::factory()->create(['activity_name' => 'ພັດທະນາໂຄງການທ່າບົກ ທ່ານາແລ້ງ ແລະ ເຂດໂລຊີດສະຕິກ']);
+        $contract = AmisContract::factory()->create(['contract_name' => 'ໂຄງການ ສວນສະໜຸກປາກເຊວັນເດີແລນ']);
+
+        $result = app(ActivityRule::class)->evaluate($this->pairFor($project, $contract));
+
+        $this->assertLessThan(0.2, $result->score);
+        $this->assertSame(0.4, $result->capsTotalAt);
+    }
+
+    public function test_does_not_cap_similar_activities(): void
+    {
+        $project = LcisProject::factory()->create(['activity_name' => 'ປູກຕົ້ນໄມ້ອຸດສາຫະກຳ']);
+        $contract = AmisContract::factory()->create(['contract_name' => 'ໂຄງການປູກໄມ້ອຸດສາຫະກຳ']);
+
+        $this->assertNull(app(ActivityRule::class)->evaluate($this->pairFor($project, $contract))->capsTotalAt);
+    }
 }

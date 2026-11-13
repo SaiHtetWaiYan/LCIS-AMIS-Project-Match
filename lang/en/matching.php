@@ -41,11 +41,13 @@ return [
         'location_village' => 'similar village (:village)',
         'location_none' => 'Different provinces (LCIS :lcis, AMIS :amis)',
         'location_fallback' => '[LCIS responsible office, not land location]',
+        'numbers_differ' => '(different project numbers)',
     ],
 
     'no_data' => 'No data on one side',
     'rules_with_data' => ':count of :total rules had data',
     'weak_basis' => 'Based on few rules — check carefully',
+    'capped' => 'Capped at :percent%: :rules too different',
     'score' => 'Score',
 
     'candidates' => [

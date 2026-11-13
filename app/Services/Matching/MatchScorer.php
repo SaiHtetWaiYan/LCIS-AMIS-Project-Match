@@ -24,7 +24,7 @@ class MatchScorer
         foreach (config('matching.rules') as $ruleClass => $weight) {
             $rule = $this->rule($ruleClass);
             $result = $rule->evaluate($pair);
-            $outcomes[] = new RuleOutcome($ruleClass, $rule->label(), (float) $weight, $result?->score, $result?->reason);
+            $outcomes[] = new RuleOutcome($ruleClass, $rule->label(), (float) $weight, $result?->score, $result?->reason, $result?->capsTotalAt);
         }
 
         return new ScoreCard($outcomes);

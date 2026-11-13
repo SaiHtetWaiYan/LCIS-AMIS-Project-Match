@@ -101,4 +101,27 @@ class LocationRuleTest extends TestCase
     {
         return new MatchPair($project->fresh('locations'), $contract->fresh('items'), []);
     }
+
+    public function test_caps_the_total_when_no_province_matches(): void
+    {
+        $project = LcisProject::factory()->create();
+        LcisProjectLocation::factory()->for($project, 'project')->create(['province_id' => 1, 'district_id' => 104]);
+        $contract = AmisContract::factory()->create();
+        AmisContractItem::factory()->for($contract, 'contract')->create(['province_id' => 16, 'district_id' => 1601]);
+
+        $this->assertSame(0.4, app(LocationRule::class)->evaluate($this->pair($project, $contract))->capsTotalAt);
+    }
+
+    public function test_does_not_cap_when_lcis_only_knows_its_responsible_office(): void
+    {
+        $project = LcisProject::factory()->create();
+        LcisProjectLocation::factory()->for($project, 'project')->create(['province_id' => 1, 'district_id' => 104, 'is_fallback' => true]);
+        $contract = AmisContract::factory()->create();
+        AmisContractItem::factory()->for($contract, 'contract')->create(['province_id' => 16, 'district_id' => 1601]);
+
+        $result = app(LocationRule::class)->evaluate($this->pair($project, $contract));
+
+        $this->assertSame(0.0, $result->score);
+        $this->assertNull($result->capsTotalAt);
+    }
 }

@@ -13,5 +13,6 @@ final readonly class TextMatch
         public string $lcisText,
         public string $amisSource,
         public string $amisText,
+        public bool $numbersDiffer = false,
     ) {}
 }

@@ -13,6 +13,7 @@ final readonly class RuleOutcome
         public float $weight,
         public ?float $score,
         public ?string $reason,
+        public ?float $capsTotalAt = null,
     ) {}
 
     public function hasData(): bool
