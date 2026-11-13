@@ -6,7 +6,8 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ isset($title) ? $title.' · ' : '' }}{{ __('app.short_name') }}</title>
-        <link rel="icon" type="image/png" href="{{ asset('img/logo/logo_transparent_x64.png') }}">
+        <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+        <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
