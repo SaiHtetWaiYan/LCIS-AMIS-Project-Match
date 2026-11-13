@@ -26,6 +26,7 @@ class GuideController extends Controller
             'locationPoints' => array_map(fn (float $points): int => (int) round($points * 100), config('matching.location')),
             'areaFullWithin' => (int) round(config('matching.area.full_score_within') * 100),
             'areaZeroFrom' => (int) round(config('matching.area.zero_score_from') * 100),
+            'capPercent' => (int) round(config('matching.caps.total_at_most') * 100),
             'candidateLimit' => (int) config('matching.candidates.limit'),
             'statuses' => MatchStatus::cases(),
         ]);

@@ -57,9 +57,12 @@ return [
         'colors' => 'Colours: green 75% and above (strong), amber 50–74% (check carefully), grey below 50%.',
         'rules_with_data' => '“3 of 4 rules had data” tells you how much the score rests on. A high score from one rule is weak evidence.',
         'caps' => 'Some disagreements outweigh the average: completely different company names, completely different activities, or different provinces (when LCIS has the land location). The total is then capped at :cap% and the score says “Capped”.',
+        'compared' => '“· compared: … ↔ …” shows the words actually compared, after common words are removed. E.g. “ໂຮງງານຜະລິດ ແລະ ປຸງແຕ່ງແຮ່ເຫຼັກ” and “ໂຮງງານປຸງແຕ່ງແຮ່ເຫຼັກ” are both compared as “ແຮ່ເຫລັກ” (iron ore), so the activity scores 100%: same kind of project, not necessarily the same project.',
         'pending' => 'Until LCIS sends land area and land locations, the area rule has no data and location uses the LCIS responsible office.',
-        'example_title' => 'Example',
+        'example_title' => 'Example: likely match',
         'example' => 'Company 100%, activity 100%, location 50%, area no data → (100×35 + 100×25 + 50×20) ÷ (35+25+20) = 87%.',
+        'capped_example_title' => 'Example: capped',
+        'capped_example' => 'Company 6%, activity 100%, location and area no data → (6×35 + 100×25) ÷ (35+25) = 45%. The companies are completely different, so the total is capped at :cap%.',
     ],
 
     'confirm' => [

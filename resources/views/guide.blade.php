@@ -80,12 +80,19 @@
                 <ul class="mt-4 list-disc space-y-2 pl-5">
                     <li>{{ __('guide.score.colors') }}</li>
                     <li>{{ __('guide.score.rules_with_data') }}</li>
-                    <li>{{ __('guide.score.caps', ['cap' => (int) round(config('matching.caps.total_at_most') * 100)]) }}</li>
+                    <li>{{ __('guide.score.caps', ['cap' => $capPercent]) }}</li>
+                    <li>{{ __('guide.score.compared') }}</li>
                     <li>{{ __('guide.score.pending') }}</li>
                 </ul>
-                <div class="mt-4 rounded-lg border border-blue-gray-50 bg-blue-gray-50/40 p-3">
-                    <p class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ __('guide.score.example_title') }}</p>
-                    <p class="mt-1 font-mono text-xs sm:text-sm">{{ __('guide.score.example') }}</p>
+                <div class="mt-4 grid gap-3 lg:grid-cols-2">
+                    <div class="rounded-lg border border-blue-gray-50 bg-blue-gray-50/40 p-3">
+                        <p class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ __('guide.score.example_title') }}</p>
+                        <p class="mt-1 font-mono text-xs sm:text-sm">{{ __('guide.score.example') }}</p>
+                    </div>
+                    <div class="rounded-lg border border-blue-gray-50 bg-blue-gray-50/40 p-3">
+                        <p class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ __('guide.score.capped_example_title') }}</p>
+                        <p class="mt-1 font-mono text-xs sm:text-sm">{{ __('guide.score.capped_example', ['cap' => $capPercent]) }}</p>
+                    </div>
                 </div>
             </x-card>
 

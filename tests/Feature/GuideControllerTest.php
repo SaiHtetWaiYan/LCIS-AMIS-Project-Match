@@ -33,6 +33,15 @@ class GuideControllerTest extends TestCase
         $response->assertDontSeeText('How similar the company names are');
     }
 
+    public function test_explains_capped_scores_and_the_compared_text_with_the_configured_cap(): void
+    {
+        config(['matching.caps.total_at_most' => 0.15]);
+
+        $response = $this->actingAs(User::factory()->lcis()->create())->get('/guide');
+
+        $response->assertSeeTextInOrder(['capped at 15%', '· compared:', 'Example: likely match', '= 87%', 'Example: capped', '= 45%', 'capped at 15%']);
+    }
+
     public function test_marks_the_users_own_role(): void
     {
         $response = $this->actingAs(User::factory()->amis()->create())->get('/guide');
