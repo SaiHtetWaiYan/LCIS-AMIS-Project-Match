@@ -27,7 +27,10 @@ class CandidateFinderTest extends TestCase
 
         $candidates = app(CandidateFinder::class)->forLcisProject($project);
 
-        $this->assertSame([$match->id, $sameCompanyOtherActivity->id, $sameActivityOtherCompany->id], $this->ids($candidates));
+        $ids = $this->ids($candidates);
+        $this->assertSame($match->id, $ids[0]);
+        // Both near-misses are capped at the same total, so their order is not defined.
+        $this->assertEqualsCanonicalizing([$sameCompanyOtherActivity->id, $sameActivityOtherCompany->id], array_slice($ids, 1));
         $this->assertSame(3, $candidates[0]->score->rulesWithData());
         $this->assertEqualsWithDelta(1.0, $candidates[0]->score->total(), 0.0001);
     }

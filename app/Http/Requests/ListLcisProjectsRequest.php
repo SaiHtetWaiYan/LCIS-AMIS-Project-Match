@@ -14,6 +14,11 @@ class ListLcisProjectsRequest extends FormRequest
 {
     protected $redirectRoute = 'lcis-projects.index';
 
+    /**
+     * Minimum best-score filter options, in percent.
+     */
+    public const MIN_SCORES = [50, 75];
+
     public function authorize(): bool
     {
         return $this->user()->can('viewAny', LcisProject::class);
@@ -30,11 +35,13 @@ class ListLcisProjectsRequest extends FormRequest
             'type' => ['nullable', 'integer', 'min:1'],
             'source' => ['nullable', Rule::in(['present', 'missing'])],
             'match' => ['nullable', Rule::in(['unmatched', 'proposed', 'matched'])],
+            'min_score' => ['nullable', 'integer', Rule::in(self::MIN_SCORES)],
+            'sort' => ['nullable', Rule::in(['latest', 'score'])],
         ];
     }
 
     /**
-     * @return array{search: string, province: ?int, type: ?int, source: ?string, match: ?string}
+     * @return array{search: string, province: ?int, type: ?int, source: ?string, match: ?string, min_score: ?int, sort: string}
      */
     public function filters(): array
     {
@@ -44,6 +51,8 @@ class ListLcisProjectsRequest extends FormRequest
             'type' => $this->validated('type') !== null ? (int) $this->validated('type') : null,
             'source' => $this->validated('source'),
             'match' => $this->validated('match'),
+            'min_score' => $this->validated('min_score') !== null ? (int) $this->validated('min_score') : null,
+            'sort' => $this->validated('sort') ?? 'latest',
         ];
     }
 }

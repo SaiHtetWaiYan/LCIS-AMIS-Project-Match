@@ -37,6 +37,9 @@ class LcisProject extends Model
             'raw' => 'array',
             'synced_at' => 'datetime',
             'missing_since' => 'datetime',
+            'best_score' => 'float',
+            'best_is_pair' => 'boolean',
+            'best_scored_at' => 'datetime',
         ];
     }
 
@@ -62,6 +65,16 @@ class LcisProject extends Model
     public function matches(): HasMany
     {
         return $this->hasMany(ProjectMatch::class, 'lcis_project_id');
+    }
+
+    /**
+     * The AMIS contract behind best_score: the pair's contract or the top suggestion.
+     *
+     * @return BelongsTo<AmisContract, $this>
+     */
+    public function bestCounterpart(): BelongsTo
+    {
+        return $this->belongsTo(AmisContract::class, 'best_counterpart_id');
     }
 
     /**

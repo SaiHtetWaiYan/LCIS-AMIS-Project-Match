@@ -11,6 +11,7 @@ use App\Models\LcisProject;
 use App\Models\LcisProjectLocation;
 use App\Models\ProjectMatch;
 use App\Models\User;
+use App\Services\Matching\BestScoreRecorder;
 use App\Services\Matching\MatchTermIndex;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -149,7 +150,7 @@ class LcisProjectControllerTest extends TestCase
         LcisProjectLocation::factory()->for($project, 'project')->create(['province_id' => 16, 'district_id' => 1601]);
         $contract = AmisContract::factory()->create(['contract_number' => '5871/MTC', 'partner_names' => ['ບໍລິສັດສຳພັນໄຊ'], 'contract_name' => 'ສັນຍາ ປູກກາເຟ']);
         AmisContractItem::factory()->for($contract, 'contract')->create(['province_id' => 16, 'district_id' => 1601, 'land_use_detail' => null]);
-        $this->rebuildMatchTerms();
+        $this->scoreAll();
 
         $response = $this->actingAs(User::factory()->create())->get('/lcis-projects');
 
@@ -165,7 +166,7 @@ class LcisProjectControllerTest extends TestCase
             'lcis_project_id' => $project->id,
             'amis_contract_id' => AmisContract::factory()->create(['contract_number' => 'PAIRED-1', 'partner_names' => ['ບໍລິສັດ ອື່ນ'], 'contract_name' => 'ລ້ຽງປາ']),
         ]);
-        $this->rebuildMatchTerms();
+        $this->scoreAll();
 
         $response = $this->actingAs(User::factory()->create())->get('/lcis-projects');
 
@@ -185,9 +186,30 @@ class LcisProjectControllerTest extends TestCase
         $response->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false);
     }
 
-    private function rebuildMatchTerms(): void
+    public function test_sorts_by_highest_best_score_and_filters_by_minimum_score(): void
+    {
+        LcisProject::factory()->create(['project_code' => 'SCORE-40', 'best_score' => 0.4, 'best_scored_at' => now()]);
+        LcisProject::factory()->create(['project_code' => 'SCORE-90', 'best_score' => 0.9, 'best_scored_at' => now()]);
+        LcisProject::factory()->create(['project_code' => 'NOT-SCORED']);
+        LcisProject::factory()->create(['project_code' => 'SCORE-60', 'best_score' => 0.6, 'best_scored_at' => now()]);
+        $user = User::factory()->create();
+
+        $sorted = $this->actingAs($user)->get('/lcis-projects?sort=score');
+
+        $sorted->assertOk();
+        $sorted->assertSeeTextInOrder(['SCORE-90', '90%', 'SCORE-60', '60%', 'SCORE-40', '40%', 'NOT-SCORED', 'Not scored yet']);
+
+        $filtered = $this->actingAs($user)->get('/lcis-projects?min_score=50&sort=score');
+
+        $filtered->assertOk();
+        $filtered->assertSeeTextInOrder(['SCORE-90', 'SCORE-60']);
+        $filtered->assertDontSeeText(['SCORE-40', 'NOT-SCORED']);
+    }
+
+    private function scoreAll(): void
     {
         app(MatchTermIndex::class)->rebuild(SyncSource::Lcis);
         app(MatchTermIndex::class)->rebuild(SyncSource::Amis);
+        app(BestScoreRecorder::class)->refreshAll();
     }
 }

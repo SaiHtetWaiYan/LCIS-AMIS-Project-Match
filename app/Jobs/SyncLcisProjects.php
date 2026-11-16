@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\SyncSource;
+use App\Enums\SyncStatus;
 use App\Services\Lcis\LcisSynchronizer;
 use App\Services\Sync\SyncRunRecorder;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -36,7 +37,11 @@ class SyncLcisProjects implements ShouldBeUnique, ShouldQueue
 
     public function handle(SyncRunRecorder $recorder, LcisSynchronizer $synchronizer): void
     {
-        $recorder->record(SyncSource::Lcis, $this->triggeredBy, $synchronizer->sync(...));
+        $run = $recorder->record(SyncSource::Lcis, $this->triggeredBy, $synchronizer->sync(...));
+
+        if ($run->status === SyncStatus::Succeeded) {
+            RefreshBestScores::dispatch();
+        }
     }
 
     public function failed(?Throwable $exception): void

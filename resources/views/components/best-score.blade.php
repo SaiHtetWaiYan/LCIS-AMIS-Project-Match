@@ -1,14 +1,14 @@
-@props(['candidate', 'isPair' => false])
+@props(['record'])
 
-{{-- Compact score for list rows: the active pair's score, or the top suggestion's. --}}
+{{-- Stored best score of an LCIS project or AMIS contract (BestScoreRecorder): its pair's, or its top suggestion's. --}}
 @php
-    $total = $candidate?->score->total();
-    $percent = $total === null ? null : (int) round($total * 100);
+    $percent = $record->best_score === null ? null : (int) round($record->best_score * 100);
+    $counterpart = $record->bestCounterpart;
     $reference = match (true) {
-        $candidate?->record instanceof \App\Models\AmisContract => $candidate->record->contract_number,
-        $candidate?->record instanceof \App\Models\LcisProject => $candidate->record->project_code,
+        $counterpart instanceof \App\Models\AmisContract => $counterpart->contract_number,
+        $counterpart instanceof \App\Models\LcisProject => $counterpart->project_code,
         default => null,
-    } ?? ($candidate ? '#'.$candidate->record->id : null);
+    } ?? ($record->best_counterpart_id ? '#'.$record->best_counterpart_id : null);
     $tone = match (true) {
         $percent === null => 'text-gray-400',
         $percent >= 75 => 'text-green-700',
@@ -17,13 +17,17 @@
     };
 @endphp
 
-<div {{ $attributes }}>
+<div {{ $attributes }} @if ($record->best_scored_at) title="{{ __('matching.best_score_as_of', ['date' => $record->best_scored_at->toDateTimeString()]) }}" @endif>
     <span class="md:hidden text-xs text-gray-500">{{ __('matching.best_score') }}:</span>
-    <span class="font-semibold tabular-nums {{ $tone }}">{{ $percent === null ? __('app.not_available') : $percent.'%' }}</span>
-    @if ($candidate)
-        <div class="text-xs text-gray-500">
-            {{ $isPair ? __('matching.best_score_pair') : __('matching.best_score_suggestion') }}
-            · <span class="font-mono">{{ $reference }}</span>
-        </div>
+    @if ($record->best_scored_at === null)
+        <span class="text-xs text-gray-400">{{ __('matching.best_score_pending') }}</span>
+    @else
+        <span class="font-semibold tabular-nums {{ $tone }}">{{ $percent === null ? __('app.not_available') : $percent.'%' }}</span>
+        @if ($reference)
+            <div class="text-xs text-gray-500">
+                {{ $record->best_is_pair ? __('matching.best_score_pair') : __('matching.best_score_suggestion') }}
+                · <span class="font-mono">{{ $reference }}</span>
+            </div>
+        @endif
     @endif
 </div>

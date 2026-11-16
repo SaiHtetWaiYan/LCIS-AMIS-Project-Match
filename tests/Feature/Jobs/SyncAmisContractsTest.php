@@ -4,6 +4,7 @@ namespace Tests\Feature\Jobs;
 
 use App\Enums\SyncSource;
 use App\Enums\SyncStatus;
+use App\Jobs\RefreshBestScores;
 use App\Jobs\SyncAmisContracts;
 use App\Models\AmisCompany;
 use App\Models\AmisContract;
@@ -15,6 +16,7 @@ use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class SyncAmisContractsTest extends TestCase
@@ -116,8 +118,19 @@ class SyncAmisContractsTest extends TestCase
         $this->assertSame(['amis_missing'], $match->refresh()->review_reasons);
     }
 
+    public function test_queues_a_best_score_refresh_only_after_a_successful_sync(): void
+    {
+        Queue::fake([RefreshBestScores::class]);
+        $this->fakeAmis(contracts: [$this->fixture('amis/rent_land_legacy_partner.json')]);
+
+        SyncAmisContracts::dispatchSync();
+
+        Queue::assertPushed(RefreshBestScores::class, 1);
+    }
+
     public function test_records_the_amis_api_key_error_code_when_the_key_has_expired(): void
     {
+        Queue::fake([RefreshBestScores::class]);
         $existing = AmisContract::factory()->create();
         $this->fakeAmis(error: [403, ['message' => 'API key has expired', 'code' => 'API_KEY_EXPIRED', 'detail' => 'Expired on 2026-11-01']]);
 
@@ -129,6 +142,7 @@ class SyncAmisContractsTest extends TestCase
         $this->assertSame('API key has expired', $run->error_message);
         $this->assertTrue($run->isAuthenticationFailure());
         $this->assertNull($existing->refresh()->missing_since);
+        Queue::assertNotPushed(RefreshBestScores::class);
     }
 
     /**

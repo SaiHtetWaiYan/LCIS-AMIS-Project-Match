@@ -53,6 +53,8 @@ return [
     'best_score' => 'Best score',
     'best_score_pair' => 'This pair',
     'best_score_suggestion' => 'Top suggestion',
+    'best_score_pending' => 'Not scored yet',
+    'best_score_as_of' => 'Scored :date',
 
     'candidates' => [
         'amis_title' => 'Suggested AMIS contracts',

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -40,6 +41,9 @@ class AmisContract extends Model
             'raw' => 'array',
             'synced_at' => 'datetime',
             'missing_since' => 'datetime',
+            'best_score' => 'float',
+            'best_is_pair' => 'boolean',
+            'best_scored_at' => 'datetime',
         ];
     }
 
@@ -65,6 +69,16 @@ class AmisContract extends Model
     public function matches(): HasMany
     {
         return $this->hasMany(ProjectMatch::class, 'amis_contract_id');
+    }
+
+    /**
+     * The LCIS project behind best_score: the pair's project or the top suggestion.
+     *
+     * @return BelongsTo<LcisProject, $this>
+     */
+    public function bestCounterpart(): BelongsTo
+    {
+        return $this->belongsTo(LcisProject::class, 'best_counterpart_id');
     }
 
     /**

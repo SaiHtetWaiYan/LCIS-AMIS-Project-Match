@@ -21,6 +21,11 @@ class ListAmisContractsRequest extends FormRequest
 
     public const STATUSES = ['nomal', 'cancel', 'end'];
 
+    /**
+     * Minimum best-score filter options, in percent.
+     */
+    public const MIN_SCORES = [50, 75];
+
     public function authorize(): bool
     {
         return $this->user()->can('viewAny', AmisContract::class);
@@ -38,11 +43,13 @@ class ListAmisContractsRequest extends FormRequest
             'status' => ['nullable', Rule::in(self::STATUSES)],
             'source' => ['nullable', Rule::in(['present', 'missing'])],
             'match' => ['nullable', Rule::in(['unmatched', 'proposed', 'matched'])],
+            'min_score' => ['nullable', 'integer', Rule::in(self::MIN_SCORES)],
+            'sort' => ['nullable', Rule::in(['latest', 'score'])],
         ];
     }
 
     /**
-     * @return array{search: string, province: ?int, type: ?string, status: ?string, source: ?string, match: ?string}
+     * @return array{search: string, province: ?int, type: ?string, status: ?string, source: ?string, match: ?string, min_score: ?int, sort: string}
      */
     public function filters(): array
     {
@@ -53,6 +60,8 @@ class ListAmisContractsRequest extends FormRequest
             'status' => $this->validated('status'),
             'source' => $this->validated('source'),
             'match' => $this->validated('match'),
+            'min_score' => $this->validated('min_score') !== null ? (int) $this->validated('min_score') : null,
+            'sort' => $this->validated('sort') ?? 'latest',
         ];
     }
 }

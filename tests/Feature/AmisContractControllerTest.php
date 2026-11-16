@@ -10,6 +10,7 @@ use App\Models\LcisProject;
 use App\Models\LcisProjectLocation;
 use App\Models\ProjectMatch;
 use App\Models\User;
+use App\Services\Matching\BestScoreRecorder;
 use App\Services\Matching\MatchTermIndex;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -117,7 +118,7 @@ class AmisContractControllerTest extends TestCase
         LcisProjectLocation::factory()->for($project, 'project')->create(['province_id' => 16, 'district_id' => 1601]);
         $contract = AmisContract::factory()->create(['partner_names' => ['ບໍລິສັດສຳພັນໄຊ'], 'contract_name' => 'ສັນຍາ ປູກກາເຟ']);
         AmisContractItem::factory()->for($contract, 'contract')->create(['province_id' => 16, 'district_id' => 1601, 'land_use_detail' => null]);
-        $this->rebuildMatchTerms();
+        $this->scoreAll();
 
         $response = $this->actingAs(User::factory()->create())->get('/amis-contracts');
 
@@ -133,7 +134,7 @@ class AmisContractControllerTest extends TestCase
             'amis_contract_id' => $contract->id,
             'lcis_project_id' => LcisProject::factory()->create(['project_code' => 'PAIRED-1', 'company_name' => 'ບໍລິສັດ ອື່ນ', 'activity_name' => 'ລ້ຽງປາ']),
         ]);
-        $this->rebuildMatchTerms();
+        $this->scoreAll();
 
         $response = $this->actingAs(User::factory()->create())->get('/amis-contracts');
 
@@ -142,9 +143,30 @@ class AmisContractControllerTest extends TestCase
         $response->assertDontSeeText(['Top suggestion', 'BETTER-1']);
     }
 
-    private function rebuildMatchTerms(): void
+    public function test_sorts_by_highest_best_score_and_filters_by_minimum_score(): void
+    {
+        AmisContract::factory()->create(['contract_number' => 'SCORE-40', 'best_score' => 0.4, 'best_scored_at' => now()]);
+        AmisContract::factory()->create(['contract_number' => 'SCORE-90', 'best_score' => 0.9, 'best_scored_at' => now()]);
+        AmisContract::factory()->create(['contract_number' => 'NOT-SCORED']);
+        AmisContract::factory()->create(['contract_number' => 'SCORE-60', 'best_score' => 0.6, 'best_scored_at' => now()]);
+        $user = User::factory()->create();
+
+        $sorted = $this->actingAs($user)->get('/amis-contracts?sort=score');
+
+        $sorted->assertOk();
+        $sorted->assertSeeTextInOrder(['SCORE-90', '90%', 'SCORE-60', '60%', 'SCORE-40', '40%', 'NOT-SCORED', 'Not scored yet']);
+
+        $filtered = $this->actingAs($user)->get('/amis-contracts?min_score=50&sort=score');
+
+        $filtered->assertOk();
+        $filtered->assertSeeTextInOrder(['SCORE-90', 'SCORE-60']);
+        $filtered->assertDontSeeText(['SCORE-40', 'NOT-SCORED']);
+    }
+
+    private function scoreAll(): void
     {
         app(MatchTermIndex::class)->rebuild(SyncSource::Lcis);
         app(MatchTermIndex::class)->rebuild(SyncSource::Amis);
+        app(BestScoreRecorder::class)->refreshAll();
     }
 }

@@ -10,6 +10,7 @@ use App\Models\LcisProject;
 use App\Models\MatchEvent;
 use App\Models\ProjectMatch;
 use App\Models\User;
+use App\Services\Matching\BestScoreRecorder;
 use Closure;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
@@ -29,12 +30,15 @@ use Illuminate\Support\Facades\DB;
  */
 class MatchWorkflow
 {
-    public function __construct(private readonly MatchCardinality $cardinality) {}
+    public function __construct(
+        private readonly MatchCardinality $cardinality,
+        private readonly BestScoreRecorder $bestScores,
+    ) {}
 
     public function propose(User $user, LcisProject $project, AmisContract $contract): ProjectMatch
     {
         try {
-            return DB::transaction(function () use ($user, $project, $contract): ProjectMatch {
+            $match = DB::transaction(function () use ($user, $project, $contract): ProjectMatch {
                 // Lock both records (always LCIS first) so competing proposals queue up here.
                 $project = LcisProject::query()->whereKey($project->id)->lockForUpdate()->firstOrFail();
                 $contract = AmisContract::query()->whereKey($contract->id)->lockForUpdate()->firstOrFail();
@@ -56,6 +60,10 @@ class MatchWorkflow
         } catch (UniqueConstraintViolationException) {
             throw new MatchWorkflowException(__('matches.errors.taken_meanwhile'));
         }
+
+        $this->bestScores->refreshAround($match);
+
+        return $match;
     }
 
     public function confirm(User $user, ProjectMatch $match): ProjectMatch
@@ -188,20 +196,29 @@ class MatchWorkflow
     }
 
     /**
-     * Runs a change on a freshly locked copy of the match after re-checking that it is allowed.
+     * Runs a change on a freshly locked copy of the match after re-checking that it is allowed,
+     * then refreshes the stored best scores the change affects.
      *
      * @param  Closure(ProjectMatch): ?string  $refusal
      * @param  Closure(ProjectMatch): void  $change
      */
     private function transition(ProjectMatch $match, Closure $refusal, Closure $change): ProjectMatch
     {
-        return DB::transaction(function () use ($match, $refusal, $change): ProjectMatch {
+        $statusBefore = $match->status;
+
+        $changed = DB::transaction(function () use ($match, $refusal, $change): ProjectMatch {
             $locked = ProjectMatch::query()->whereKey($match->id)->lockForUpdate()->firstOrFail();
             $this->refuseIf($refusal($locked));
             $change($locked);
 
             return $locked;
         });
+
+        if ($changed->status !== $statusBefore) {
+            $this->bestScores->refreshAround($changed);
+        }
+
+        return $changed;
     }
 
     private function refuseIf(?string $refusal): void

@@ -52,7 +52,24 @@
                     @endforeach
                 </x-select-input>
             </div>
-            <div class="flex items-end justify-end gap-3 sm:col-span-2 lg:col-span-6">
+            <div>
+                <x-input-label for="min_score" :value="__('app.filters.min_score')" />
+                <x-select-input id="min_score" name="min_score" class="mt-1 block w-full">
+                    <option value="">{{ __('app.filters.any_score') }}</option>
+                    @foreach ($minScores as $minScore)
+                        <option value="{{ $minScore }}" @selected($filters['min_score'] === $minScore)>{{ __('app.filters.score_at_least', ['percent' => $minScore]) }}</option>
+                    @endforeach
+                </x-select-input>
+            </div>
+            <div>
+                <x-input-label for="sort" :value="__('app.filters.sort')" />
+                <x-select-input id="sort" name="sort" class="mt-1 block w-full">
+                    @foreach (['latest', 'score'] as $sort)
+                        <option value="{{ $sort }}" @selected($filters['sort'] === $sort)>{{ __('app.filters.sort_'.$sort) }}</option>
+                    @endforeach
+                </x-select-input>
+            </div>
+            <div class="flex items-end justify-end gap-3 lg:col-span-5">
                 <a href="{{ route('amis-contracts.index') }}"><x-secondary-button>{{ __('app.filters.reset') }}</x-secondary-button></a>
                 <x-primary-button>{{ __('app.filters.apply') }}</x-primary-button>
             </div>
@@ -98,7 +115,7 @@
                         </td>
                         <td class="block md:table-cell mt-2 md:mt-0 md:px-6 md:py-4 align-top whitespace-nowrap"><x-hectares :value="$contract->area_ha" /></td>
                         <td class="block md:table-cell mt-2 md:mt-0 md:px-6 md:py-4 align-top whitespace-nowrap">
-                            <x-best-score :candidate="$bestScores[$contract->id]" :is-pair="$contract->activeMatch !== null" />
+                            <x-best-score :record="$contract" />
                         </td>
                         <td class="block md:table-cell mt-3 md:mt-0 md:px-6 md:py-4 align-top md:text-right">
                             <x-link-button variant="view" :href="route('amis-contracts.show', $contract)">{{ __('app.view') }}</x-link-button>
