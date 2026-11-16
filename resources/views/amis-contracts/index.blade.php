@@ -64,7 +64,7 @@
             <div>
                 <x-input-label for="sort" :value="__('app.filters.sort')" />
                 <x-select-input id="sort" name="sort" class="mt-1 block w-full">
-                    @foreach (['latest', 'score'] as $sort)
+                    @foreach (['score', 'latest'] as $sort)
                         <option value="{{ $sort }}" @selected($filters['sort'] === $sort)>{{ __('app.filters.sort_'.$sort) }}</option>
                     @endforeach
                 </x-select-input>

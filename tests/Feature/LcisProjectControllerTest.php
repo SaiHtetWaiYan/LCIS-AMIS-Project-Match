@@ -186,7 +186,7 @@ class LcisProjectControllerTest extends TestCase
         $response->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false);
     }
 
-    public function test_sorts_by_highest_best_score_and_filters_by_minimum_score(): void
+    public function test_sorts_by_highest_best_score_by_default_and_filters_by_minimum_score(): void
     {
         LcisProject::factory()->create(['project_code' => 'SCORE-40', 'best_score' => 0.4, 'best_scored_at' => now()]);
         LcisProject::factory()->create(['project_code' => 'SCORE-90', 'best_score' => 0.9, 'best_scored_at' => now()]);
@@ -194,7 +194,7 @@ class LcisProjectControllerTest extends TestCase
         LcisProject::factory()->create(['project_code' => 'SCORE-60', 'best_score' => 0.6, 'best_scored_at' => now()]);
         $user = User::factory()->create();
 
-        $sorted = $this->actingAs($user)->get('/lcis-projects?sort=score');
+        $sorted = $this->actingAs($user)->get('/lcis-projects');
 
         $sorted->assertOk();
         $sorted->assertSeeTextInOrder(['SCORE-90', '90%', 'SCORE-60', '60%', 'SCORE-40', '40%', 'NOT-SCORED', 'Not scored yet']);

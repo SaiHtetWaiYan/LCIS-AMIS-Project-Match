@@ -52,7 +52,7 @@ class ListLcisProjectsRequest extends FormRequest
             'source' => $this->validated('source'),
             'match' => $this->validated('match'),
             'min_score' => $this->validated('min_score') !== null ? (int) $this->validated('min_score') : null,
-            'sort' => $this->validated('sort') ?? 'latest',
+            'sort' => $this->validated('sort') ?? 'score',
         ];
     }
 }

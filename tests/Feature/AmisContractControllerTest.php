@@ -143,7 +143,7 @@ class AmisContractControllerTest extends TestCase
         $response->assertDontSeeText(['Top suggestion', 'BETTER-1']);
     }
 
-    public function test_sorts_by_highest_best_score_and_filters_by_minimum_score(): void
+    public function test_sorts_by_highest_best_score_by_default_and_filters_by_minimum_score(): void
     {
         AmisContract::factory()->create(['contract_number' => 'SCORE-40', 'best_score' => 0.4, 'best_scored_at' => now()]);
         AmisContract::factory()->create(['contract_number' => 'SCORE-90', 'best_score' => 0.9, 'best_scored_at' => now()]);
@@ -151,7 +151,7 @@ class AmisContractControllerTest extends TestCase
         AmisContract::factory()->create(['contract_number' => 'SCORE-60', 'best_score' => 0.6, 'best_scored_at' => now()]);
         $user = User::factory()->create();
 
-        $sorted = $this->actingAs($user)->get('/amis-contracts?sort=score');
+        $sorted = $this->actingAs($user)->get('/amis-contracts');
 
         $sorted->assertOk();
         $sorted->assertSeeTextInOrder(['SCORE-90', '90%', 'SCORE-60', '60%', 'SCORE-40', '40%', 'NOT-SCORED', 'Not scored yet']);
