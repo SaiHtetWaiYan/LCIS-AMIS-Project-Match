@@ -12,13 +12,13 @@ use Illuminate\View\View;
 
 class LcisProjectController extends Controller
 {
-    public function index(ListLcisProjectsRequest $request, ProvinceDirectory $provinces): View
+    public function index(ListLcisProjectsRequest $request, ProvinceDirectory $provinces, CandidateFinder $candidates): View
     {
         $filters = $request->filters();
 
         $projects = LcisProject::query()
             ->select(['id', 'project_code', 'activity_name', 'project_type', 'status', 'company_id', 'company_name', 'area_ha', 'missing_since', 'source_updated_at'])
-            ->with(['locations', 'company:id,name_eng', 'activeMatch:id,lcis_project_id,status,needs_review'])
+            ->with(['locations', 'company:id,name_eng', 'activeMatch:id,lcis_project_id,amis_contract_id,status,needs_review'])
             ->when($filters['search'] !== '', fn ($query) => $query->search($filters['search']))
             ->when($filters['province'], fn ($query, int $provinceId) => $query->inProvince($provinceId))
             ->when($filters['type'], fn ($query, int $typeId) => $query->where('project_type_id', $typeId))
@@ -31,6 +31,7 @@ class LcisProjectController extends Controller
 
         return view('lcis-projects.index', [
             'projects' => $projects,
+            'bestScores' => $projects->getCollection()->mapWithKeys(fn (LcisProject $project): array => [$project->id => $candidates->bestForLcisProject($project)]),
             'filters' => $filters,
             'provinces' => $provinces->all(),
             'projectTypes' => LcisProject::query()->whereNotNull('project_type_id')->distinct()->orderBy('project_type')->pluck('project_type', 'project_type_id'),

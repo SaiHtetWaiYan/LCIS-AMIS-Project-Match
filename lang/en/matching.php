@@ -50,6 +50,9 @@ return [
     'weak_basis' => 'Based on few rules — check carefully',
     'capped' => 'Capped at :percent%: :rules too different',
     'score' => 'Score',
+    'best_score' => 'Best score',
+    'best_score_pair' => 'This pair',
+    'best_score_suggestion' => 'Top suggestion',
 
     'candidates' => [
         'amis_title' => 'Suggested AMIS contracts',

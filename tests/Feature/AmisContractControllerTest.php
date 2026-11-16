@@ -2,10 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Enums\SyncSource;
 use App\Models\AmisCompany;
 use App\Models\AmisContract;
 use App\Models\AmisContractItem;
+use App\Models\LcisProject;
+use App\Models\LcisProjectLocation;
+use App\Models\ProjectMatch;
 use App\Models\User;
+use App\Services\Matching\MatchTermIndex;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -104,5 +109,42 @@ class AmisContractControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSeeText(['ບໍລິສັດບີເອັມຊີ', 'No company is linked in AMIS (legacy contract)']);
+    }
+
+    public function test_list_shows_the_top_suggestion_score(): void
+    {
+        $project = LcisProject::factory()->create(['project_code' => 'AGR-2024-0012', 'company_name' => 'ບໍລິສັດ ສຳພັນໄຊ ຈຳກັດ', 'activity_name' => 'ປູກກາເຟ']);
+        LcisProjectLocation::factory()->for($project, 'project')->create(['province_id' => 16, 'district_id' => 1601]);
+        $contract = AmisContract::factory()->create(['partner_names' => ['ບໍລິສັດສຳພັນໄຊ'], 'contract_name' => 'ສັນຍາ ປູກກາເຟ']);
+        AmisContractItem::factory()->for($contract, 'contract')->create(['province_id' => 16, 'district_id' => 1601, 'land_use_detail' => null]);
+        $this->rebuildMatchTerms();
+
+        $response = $this->actingAs(User::factory()->create())->get('/amis-contracts');
+
+        $response->assertOk();
+        $response->assertSeeTextInOrder(['Best score', 'ສັນຍາ ປູກກາເຟ', '100%', 'Top suggestion', 'AGR-2024-0012']);
+    }
+
+    public function test_list_shows_the_score_of_a_proposed_pair_instead_of_a_suggestion(): void
+    {
+        $contract = AmisContract::factory()->create(['partner_names' => ['ບໍລິສັດສຳພັນໄຊ'], 'contract_name' => 'ປູກກາເຟ']);
+        LcisProject::factory()->create(['project_code' => 'BETTER-1', 'company_name' => 'ບໍລິສັດ ສຳພັນໄຊ ຈຳກັດ', 'activity_name' => 'ປູກກາເຟ']);
+        ProjectMatch::factory()->create([
+            'amis_contract_id' => $contract->id,
+            'lcis_project_id' => LcisProject::factory()->create(['project_code' => 'PAIRED-1', 'company_name' => 'ບໍລິສັດ ອື່ນ', 'activity_name' => 'ລ້ຽງປາ']),
+        ]);
+        $this->rebuildMatchTerms();
+
+        $response = $this->actingAs(User::factory()->create())->get('/amis-contracts');
+
+        $response->assertOk();
+        $response->assertSeeTextInOrder(['This pair', 'PAIRED-1']);
+        $response->assertDontSeeText(['Top suggestion', 'BETTER-1']);
+    }
+
+    private function rebuildMatchTerms(): void
+    {
+        app(MatchTermIndex::class)->rebuild(SyncSource::Lcis);
+        app(MatchTermIndex::class)->rebuild(SyncSource::Amis);
     }
 }

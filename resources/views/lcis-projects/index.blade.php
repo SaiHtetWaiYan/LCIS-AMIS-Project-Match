@@ -54,7 +54,7 @@
         @if ($projects->isEmpty())
             <p class="p-4 text-center text-sm text-blue-gray-900">{{ __('lcis.empty') }}</p>
         @else
-            <x-data-table :headings="['#', __('lcis.fields.activity_name'), __('lcis.fields.project_type'), __('lcis.fields.location'), __('lcis.fields.area'), '']">
+            <x-data-table :headings="['#', __('lcis.fields.activity_name'), __('lcis.fields.project_type'), __('lcis.fields.location'), __('lcis.fields.area'), __('matching.best_score'), '']">
                 @foreach ($projects as $project)
                     @php($location = $project->locations->first())
                     <tr class="block md:table-row px-4 py-4 md:p-0 border-b border-blue-gray-50 hover:bg-slate-50">
@@ -84,6 +84,9 @@
                             @endif
                         </td>
                         <td class="block md:table-cell mt-2 md:mt-0 md:px-6 md:py-4 align-top whitespace-nowrap"><x-hectares :value="$project->area_ha" /></td>
+                        <td class="block md:table-cell mt-2 md:mt-0 md:px-6 md:py-4 align-top whitespace-nowrap">
+                            <x-best-score :candidate="$bestScores[$project->id]" :is-pair="$project->activeMatch !== null" />
+                        </td>
                         <td class="block md:table-cell mt-3 md:mt-0 md:px-6 md:py-4 align-top md:text-right">
                             <x-link-button variant="view" :href="route('lcis-projects.show', $project)">{{ __('app.view') }}</x-link-button>
                         </td>

@@ -63,7 +63,7 @@
         @if ($contracts->isEmpty())
             <p class="p-4 text-center text-sm text-blue-gray-900">{{ __('amis.empty') }}</p>
         @else
-            <x-data-table :headings="['#', __('amis.fields.contract_name'), __('amis.fields.contract_type'), __('amis.fields.location'), __('amis.fields.area'), '']">
+            <x-data-table :headings="['#', __('amis.fields.contract_name'), __('amis.fields.contract_type'), __('amis.fields.location'), __('amis.fields.area'), __('matching.best_score'), '']">
                 @foreach ($contracts as $contract)
                     @php($item = $contract->items->first())
                     @php($partyNames = $contract->companies->isNotEmpty() ? $contract->companies->pluck('name_lao')->filter()->all() : $contract->partner_names)
@@ -97,6 +97,9 @@
                             @endif
                         </td>
                         <td class="block md:table-cell mt-2 md:mt-0 md:px-6 md:py-4 align-top whitespace-nowrap"><x-hectares :value="$contract->area_ha" /></td>
+                        <td class="block md:table-cell mt-2 md:mt-0 md:px-6 md:py-4 align-top whitespace-nowrap">
+                            <x-best-score :candidate="$bestScores[$contract->id]" :is-pair="$contract->activeMatch !== null" />
+                        </td>
                         <td class="block md:table-cell mt-3 md:mt-0 md:px-6 md:py-4 align-top md:text-right">
                             <x-link-button variant="view" :href="route('amis-contracts.show', $contract)">{{ __('app.view') }}</x-link-button>
                         </td>

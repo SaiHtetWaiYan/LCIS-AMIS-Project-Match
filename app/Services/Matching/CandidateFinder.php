@@ -63,6 +63,36 @@ class CandidateFinder
     }
 
     /**
+     * The score to show for a project in a list: its proposed or matched pair if it has one,
+     * otherwise its best suggestion. Expects activeMatch to be loaded with amis_contract_id.
+     */
+    public function bestForLcisProject(LcisProject $project): ?Candidate
+    {
+        $contractId = $project->activeMatch?->amis_contract_id;
+
+        if ($contractId !== null) {
+            return $this->scoreAmisContracts($project, AmisContract::query()->whereKey($contractId)->get())[0] ?? null;
+        }
+
+        return $this->forLcisProject($project, 1)[0] ?? null;
+    }
+
+    /**
+     * The score to show for a contract in a list: its proposed or matched pair if it has one,
+     * otherwise its best suggestion. Expects activeMatch to be loaded with lcis_project_id.
+     */
+    public function bestForAmisContract(AmisContract $contract): ?Candidate
+    {
+        $projectId = $contract->activeMatch?->lcis_project_id;
+
+        if ($projectId !== null) {
+            return $this->scoreLcisProjects($contract, LcisProject::query()->whereKey($projectId)->get())[0] ?? null;
+        }
+
+        return $this->forAmisContract($contract, 1)[0] ?? null;
+    }
+
+    /**
      * Scores given AMIS contracts (e.g. manual search results) against a project, best first.
      *
      * @param  Collection<int, AmisContract>  $contracts

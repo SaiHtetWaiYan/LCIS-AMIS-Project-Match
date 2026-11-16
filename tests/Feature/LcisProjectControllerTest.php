@@ -4,9 +4,12 @@ namespace Tests\Feature;
 
 use App\Enums\SyncSource;
 use App\Enums\UserSide;
+use App\Models\AmisContract;
+use App\Models\AmisContractItem;
 use App\Models\LcisCompany;
 use App\Models\LcisProject;
 use App\Models\LcisProjectLocation;
+use App\Models\ProjectMatch;
 use App\Models\User;
 use App\Services\Matching\MatchTermIndex;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -140,6 +143,37 @@ class LcisProjectControllerTest extends TestCase
         $response->assertSeeText('Missing from source since');
     }
 
+    public function test_list_shows_the_top_suggestion_score(): void
+    {
+        $project = LcisProject::factory()->create(['company_name' => 'ບໍລິສັດ ສຳພັນໄຊ ຈຳກັດ', 'activity_name' => 'ປູກກາເຟ']);
+        LcisProjectLocation::factory()->for($project, 'project')->create(['province_id' => 16, 'district_id' => 1601]);
+        $contract = AmisContract::factory()->create(['contract_number' => '5871/MTC', 'partner_names' => ['ບໍລິສັດສຳພັນໄຊ'], 'contract_name' => 'ສັນຍາ ປູກກາເຟ']);
+        AmisContractItem::factory()->for($contract, 'contract')->create(['province_id' => 16, 'district_id' => 1601, 'land_use_detail' => null]);
+        $this->rebuildMatchTerms();
+
+        $response = $this->actingAs(User::factory()->create())->get('/lcis-projects');
+
+        $response->assertOk();
+        $response->assertSeeTextInOrder(['Best score', 'ປູກກາເຟ', '100%', 'Top suggestion', '5871/MTC']);
+    }
+
+    public function test_list_shows_the_score_of_a_proposed_pair_instead_of_a_suggestion(): void
+    {
+        $project = LcisProject::factory()->create(['company_name' => 'ບໍລິສັດ ສຳພັນໄຊ ຈຳກັດ', 'activity_name' => 'ປູກກາເຟ']);
+        AmisContract::factory()->create(['contract_number' => 'BETTER-1', 'partner_names' => ['ບໍລິສັດສຳພັນໄຊ'], 'contract_name' => 'ປູກກາເຟ']);
+        ProjectMatch::factory()->create([
+            'lcis_project_id' => $project->id,
+            'amis_contract_id' => AmisContract::factory()->create(['contract_number' => 'PAIRED-1', 'partner_names' => ['ບໍລິສັດ ອື່ນ'], 'contract_name' => 'ລ້ຽງປາ']),
+        ]);
+        $this->rebuildMatchTerms();
+
+        $response = $this->actingAs(User::factory()->create())->get('/lcis-projects');
+
+        $response->assertOk();
+        $response->assertSeeTextInOrder(['This pair', 'PAIRED-1']);
+        $response->assertDontSeeText(['Top suggestion', 'BETTER-1']);
+    }
+
     public function test_escapes_source_text_on_the_list(): void
     {
         LcisProject::factory()->create(['activity_name' => '<script>alert(1)</script>']);
@@ -149,5 +183,11 @@ class LcisProjectControllerTest extends TestCase
         $response->assertOk();
         $response->assertDontSee('<script>alert(1)</script>', false);
         $response->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false);
+    }
+
+    private function rebuildMatchTerms(): void
+    {
+        app(MatchTermIndex::class)->rebuild(SyncSource::Lcis);
+        app(MatchTermIndex::class)->rebuild(SyncSource::Amis);
     }
 }
