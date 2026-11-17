@@ -9,8 +9,8 @@ use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 
 /**
- * An item of LCIS GET /projects. area_ha and locations[] are being added to the LCIS list; until
- * they arrive, the area is unknown and the location falls back to the responsible province/district.
+ * An item of LCIS GET /projects. granted_area_ha is null or 0 when LCIS has no granted area; both read as
+ * unknown. A project without a usable locations[] entry falls back to its responsible province/district.
  */
 final readonly class LcisProjectData
 {
@@ -76,7 +76,7 @@ final readonly class LcisProjectData
             responsibleProvinceName: $provinceName,
             responsibleDistrictId: $districtId,
             responsibleDistrictName: $districtName,
-            areaHa: self::floatOrNull($raw['area_ha'] ?? null),
+            areaHa: self::grantedArea($raw['granted_area_ha'] ?? null),
             locations: self::locations($raw, $provinceId, $provinceName, $districtId, $districtName),
             sourceUpdatedAt: self::timestampOrNull($raw['updated_at'] ?? null),
             raw: $raw,
@@ -133,17 +133,29 @@ final readonly class LcisProjectData
         ]);
     }
 
+    private static function grantedArea(mixed $value): ?float
+    {
+        $area = self::floatOrNull($value);
+
+        return $area !== null && $area > 0 ? $area : null;
+    }
+
     /**
      * @param  array<string, mixed>  $raw
      * @return list<LcisLocationData>
      */
     private static function locations(array $raw, ?int $provinceId, ?string $provinceName, ?int $districtId, ?string $districtName): array
     {
-        if (is_array($raw['locations'] ?? null) && $raw['locations'] !== []) {
-            return array_values(array_map(
+        $locations = array_values(array_filter(
+            array_map(
                 fn (array $location): LcisLocationData => LcisLocationData::fromApi($location),
-                array_filter($raw['locations'], 'is_array'),
-            ));
+                array_filter(is_array($raw['locations'] ?? null) ? $raw['locations'] : [], 'is_array'),
+            ),
+            fn (LcisLocationData $location): bool => $location->provinceId !== null,
+        ));
+
+        if ($locations !== []) {
+            return $locations;
         }
 
         if ($provinceId === null) {

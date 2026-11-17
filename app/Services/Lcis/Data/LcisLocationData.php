@@ -3,9 +3,11 @@
 namespace App\Services\Lcis\Data;
 
 use App\Services\SourceApi\ParsesSourceValues;
+use App\Support\LaoAdministrativeCode;
 
 /**
- * A land location of an LCIS project, from locations[] or (as a fallback) the responsible province/district.
+ * A land location of an LCIS project, from locations[] ({ dam_name, id_prov, prov_name, id_dist, dist_name,
+ * id_vill, vill_name, ... }) or, as a fallback, the responsible province/district.
  */
 final readonly class LcisLocationData
 {
@@ -26,13 +28,15 @@ final readonly class LcisLocationData
      */
     public static function fromApi(array $raw): self
     {
+        $districtId = self::positiveIntOrNull($raw['id_dist'] ?? null);
+
         return new self(
-            self::positiveIntOrNull($raw['province_id'] ?? null),
-            self::stringOrNull($raw['province_name'] ?? null),
-            self::positiveIntOrNull($raw['district_id'] ?? null),
-            self::stringOrNull($raw['district_name'] ?? null),
-            self::positiveIntOrNull($raw['village_id'] ?? null),
-            self::stringOrNull($raw['village_name'] ?? null),
+            self::positiveIntOrNull($raw['id_prov'] ?? null) ?? LaoAdministrativeCode::provinceOfDistrict($districtId),
+            self::stringOrNull($raw['prov_name'] ?? null),
+            $districtId,
+            self::stringOrNull($raw['dist_name'] ?? null),
+            self::positiveIntOrNull($raw['id_vill'] ?? null),
+            self::stringOrNull($raw['vill_name'] ?? null),
             false,
         );
     }
