@@ -7,7 +7,9 @@ use App\Models\AmisContract;
 use App\Models\AmisContractItem;
 use App\Models\LcisProject;
 use App\Models\LcisProjectLocation;
+use App\Models\ProjectMatch;
 use App\Models\User;
+use App\Services\Matching\CandidateFinder;
 use App\Services\Matching\MatchTermIndex;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -40,6 +42,45 @@ class CandidateSuggestionsTest extends TestCase
 
         $response->assertOk();
         $response->assertSeeTextInOrder(['Suggested LCIS projects', 'AGR-2024-0012']);
+    }
+
+    public function test_amis_contract_page_shows_its_proposed_pair_above_the_suggestions(): void
+    {
+        [$project, $contract] = $this->matchingPair();
+        ProjectMatch::factory()->create(['lcis_project_id' => $project->id, 'amis_contract_id' => $contract->id]);
+        $this->index();
+
+        $response = $this->actingAs(User::factory()->amis()->create())->get("/amis-contracts/{$contract->id}");
+
+        $response->assertOk();
+        $response->assertSeeTextInOrder(['Suggested LCIS projects', 'This pair', 'AGR-2024-0012', '100%', 'Proposed', 'No suggestions. Try the search below.']);
+    }
+
+    public function test_lcis_project_page_shows_its_matched_pair_even_when_the_contract_left_amis(): void
+    {
+        [$project, $contract] = $this->matchingPair();
+        $contract->forceFill(['missing_since' => now()])->save();
+        ProjectMatch::factory()->matched()->create(['lcis_project_id' => $project->id, 'amis_contract_id' => $contract->id]);
+        $this->index();
+
+        $response = $this->actingAs(User::factory()->lcis()->create())->get("/lcis-projects/{$project->id}");
+
+        $response->assertOk();
+        $response->assertSeeTextInOrder(['Suggested AMIS contracts', 'This pair', '5871/MTC']);
+    }
+
+    public function test_equally_scored_suggestions_are_ordered_by_id(): void
+    {
+        [$project, $contract] = $this->matchingPair();
+        $twin = AmisContract::factory()->create(['contract_number' => '5872/MTC', 'partner_names' => $contract->partner_names, 'contract_name' => $contract->contract_name]);
+        AmisContractItem::factory()->for($twin, 'contract')->create(['province_id' => 16, 'district_id' => 1601, 'land_use_detail' => null]);
+        $this->index();
+
+        $finder = app(CandidateFinder::class);
+        $ids = array_map(fn ($candidate): int => $candidate->record->id, $finder->forLcisProject($project));
+
+        $this->assertSame([$contract->id, $twin->id], $ids);
+        $this->assertSame($contract->id, $finder->forLcisProject($project, 1)[0]->record->id);
     }
 
     public function test_manual_search_finds_and_scores_records_that_were_not_suggested(): void

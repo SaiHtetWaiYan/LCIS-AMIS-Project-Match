@@ -19,6 +19,13 @@ use Illuminate\Support\Facades\DB;
  */
 class CandidateFinder
 {
+    /**
+     * Relations a candidate card shows.
+     */
+    private const AMIS_RELATIONS = ['items', 'companies:id,name_lao,name_eng', 'activeMatch'];
+
+    private const LCIS_RELATIONS = ['locations', 'company:id,name_eng', 'activeMatch'];
+
     public function __construct(
         private readonly TextSimilarity $textSimilarity,
         private readonly MatchScorer $scorer,
@@ -68,10 +75,8 @@ class CandidateFinder
      */
     public function bestForLcisProject(LcisProject $project): ?Candidate
     {
-        $contractId = $project->activeMatch?->amis_contract_id;
-
-        if ($contractId !== null) {
-            return $this->scoreAmisContracts($project, AmisContract::query()->whereKey($contractId)->get())[0] ?? null;
+        if ($project->activeMatch !== null) {
+            return $this->pairForLcisProject($project);
         }
 
         return $this->forLcisProject($project, 1)[0] ?? null;
@@ -83,13 +88,45 @@ class CandidateFinder
      */
     public function bestForAmisContract(AmisContract $contract): ?Candidate
     {
-        $projectId = $contract->activeMatch?->lcis_project_id;
-
-        if ($projectId !== null) {
-            return $this->scoreLcisProjects($contract, LcisProject::query()->whereKey($projectId)->get())[0] ?? null;
+        if ($contract->activeMatch !== null) {
+            return $this->pairForAmisContract($contract);
         }
 
         return $this->forAmisContract($contract, 1)[0] ?? null;
+    }
+
+    /**
+     * The AMIS contract a project is proposed or matched with, scored. Suggestions leave it out
+     * (it is in a pair), so the project page shows it separately. It is shown even when the
+     * contract has gone missing from AMIS.
+     */
+    public function pairForLcisProject(LcisProject $project): ?Candidate
+    {
+        $contractId = $project->activeMatch?->amis_contract_id;
+
+        if ($contractId === null) {
+            return null;
+        }
+
+        $contract = AmisContract::query()->with(self::AMIS_RELATIONS)->whereKey($contractId)->get();
+
+        return $this->scoreAmisContracts($project, $contract)[0] ?? null;
+    }
+
+    /**
+     * The LCIS project a contract is proposed or matched with, scored (see pairForLcisProject()).
+     */
+    public function pairForAmisContract(AmisContract $contract): ?Candidate
+    {
+        $projectId = $contract->activeMatch?->lcis_project_id;
+
+        if ($projectId === null) {
+            return null;
+        }
+
+        $project = LcisProject::query()->with(self::LCIS_RELATIONS)->whereKey($projectId)->get();
+
+        return $this->scoreLcisProjects($contract, $project)[0] ?? null;
     }
 
     /**
@@ -133,7 +170,7 @@ class CandidateFinder
      */
     public function amisQuery(): Builder
     {
-        return AmisContract::query()->presentInSource()->with(['items', 'companies:id,name_lao,name_eng', 'activeMatch']);
+        return AmisContract::query()->presentInSource()->with(self::AMIS_RELATIONS);
     }
 
     /**
@@ -141,7 +178,7 @@ class CandidateFinder
      */
     public function lcisQuery(): Builder
     {
-        return LcisProject::query()->presentInSource()->with(['locations', 'company:id,name_eng', 'activeMatch']);
+        return LcisProject::query()->presentInSource()->with(self::LCIS_RELATIONS);
     }
 
     /**
@@ -205,14 +242,16 @@ class CandidateFinder
     }
 
     /**
-     * Highest total first; ties go to the candidate backed by more rules.
+     * Highest total first; ties go to the candidate backed by more rules, then to the lowest id,
+     * so the stored best score and the record's page always name the same candidate.
      *
      * @param  list<Candidate>  $candidates
      * @return list<Candidate>
      */
     private function sorted(array $candidates): array
     {
-        usort($candidates, fn (Candidate $a, Candidate $b): int => [$b->score->total() ?? -1, $b->score->rulesWithData()] <=> [$a->score->total() ?? -1, $a->score->rulesWithData()]);
+        usort($candidates, fn (Candidate $a, Candidate $b): int => [$b->score->total() ?? -1, $b->score->rulesWithData(), $a->record->id]
+            <=> [$a->score->total() ?? -1, $a->score->rulesWithData(), $b->record->id]);
 
         return $candidates;
     }

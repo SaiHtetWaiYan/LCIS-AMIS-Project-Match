@@ -1,8 +1,18 @@
 {{--
     Suggestions and manual search of the other system.
     $otherSide: 'amis' when showing an LCIS project, 'lcis' when showing an AMIS contract.
+    $pair: the record of the other system this one is proposed or matched with, scored, or null.
 --}}
 <x-card :title="__('matching.candidates.'.$otherSide.'_title')" :subtitle="__('matching.candidates.subtitle', ['count' => config('matching.candidates.limit')])">
+    @if ($pair)
+        <div class="mb-5 rounded-lg border border-blue-200 bg-blue-50/60 px-4 pt-4">
+            <p class="mb-3 text-xs font-medium uppercase tracking-wide text-blue-900">{{ __('matching.best_score_pair') }}</p>
+            <ol>
+                @include('matching.candidate', ['candidate' => $pair])
+            </ol>
+        </div>
+    @endif
+
     @if ($candidates === [])
         <p class="text-sm text-gray-500">{{ __('matching.candidates.none') }}</p>
     @else

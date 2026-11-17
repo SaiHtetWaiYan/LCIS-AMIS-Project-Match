@@ -50,6 +50,7 @@ class LcisProjectController extends Controller
         return view('lcis-projects.show', [
             'project' => $lcisProject,
             'provinces' => $provinces->all(),
+            'pair' => $candidates->pairForLcisProject($lcisProject),
             'candidates' => $candidates->forLcisProject($lcisProject),
             'searchTerm' => $searchTerm,
             'searchResults' => $searchTerm === '' ? null : $candidates->scoreAmisContracts(

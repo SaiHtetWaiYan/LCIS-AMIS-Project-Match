@@ -51,6 +51,7 @@ class AmisContractController extends Controller
         return view('amis-contracts.show', [
             'contract' => $amisContract,
             'provinces' => $provinces->all(),
+            'pair' => $candidates->pairForAmisContract($amisContract),
             'candidates' => $candidates->forAmisContract($amisContract),
             'searchTerm' => $searchTerm,
             'searchResults' => $searchTerm === '' ? null : $candidates->scoreLcisProjects(
