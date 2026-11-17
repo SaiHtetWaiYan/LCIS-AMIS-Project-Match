@@ -46,12 +46,14 @@ the full list each time and replace your copy, rather than adding to it.
 
 ### Access
 
-Each calling system gets its own bearer token. Only a SHA-256 hash of the token is stored, so it
-is shown once, when it is created:
+Each side gets its own bearer token. Users of that side see it in the user guide (section
+Matches API); admins see both. The token is stored encrypted with `APP_KEY`, and requests are
+checked against its SHA-256 hash.
 
 ```bash
-php artisan api-client:create AMIS            # prints the client id and its token
-php artisan api-client:revoke 1               # the token stops working
+php artisan api-client:create amis            # prints the client id and its token
+php artisan api-client:create lcis
+php artisan api-client:revoke 1               # the token stops working and leaves the guide
 php artisan api-client:revoke 1 --restore     # the token works again
 ```
 

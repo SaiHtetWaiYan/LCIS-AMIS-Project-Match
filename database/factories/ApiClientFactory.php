@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\UserSide;
 use App\Models\ApiClient;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -15,16 +16,25 @@ class ApiClientFactory extends Factory
      */
     public function definition(): array
     {
+        $token = ApiClient::generateToken();
+
         return [
             'name' => fake()->randomElement(['AMIS', 'LCIS']),
-            'token_hash' => ApiClient::hashToken(ApiClient::generateToken()),
+            'side' => fake()->randomElement([UserSide::Lcis, UserSide::Amis]),
+            'token_hash' => ApiClient::hashToken($token),
+            'token' => $token,
             'is_active' => true,
         ];
     }
 
     public function withToken(string $plainToken): static
     {
-        return $this->state(fn (array $attributes): array => ['token_hash' => ApiClient::hashToken($plainToken)]);
+        return $this->state(fn (array $attributes): array => ['token_hash' => ApiClient::hashToken($plainToken), 'token' => $plainToken]);
+    }
+
+    public function forSide(UserSide $side): static
+    {
+        return $this->state(fn (array $attributes): array => ['name' => strtoupper($side->value), 'side' => $side]);
     }
 
     public function revoked(): static

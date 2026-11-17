@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Enums\UserSide;
+use App\Models\ApiClient;
 use App\Models\User;
 use App\Services\Matching\Rules\AreaRule;
 use App\Services\Matching\Rules\LocationRule;
@@ -47,6 +49,39 @@ class GuideControllerTest extends TestCase
         $response = $this->actingAs(User::factory()->amis()->create())->get('/guide');
 
         $response->assertSeeTextInOrder(['AMIS', 'You', 'Propose pairs. Confirm or reject pairs proposed by LCIS users.']);
+    }
+
+    public function test_shows_only_the_api_key_of_the_users_side(): void
+    {
+        ApiClient::factory()->forSide(UserSide::Lcis)->withToken('lcis-key-0123456789')->create();
+        ApiClient::factory()->forSide(UserSide::Amis)->withToken('amis-key-0123456789')->create();
+
+        $response = $this->actingAs(User::factory()->lcis()->create())->get('/guide');
+
+        $response->assertSeeTextInOrder(['Matches API', 'LCIS API key', route('api.v1.matches.index')]);
+        $response->assertSee('lcis-key-0123456789');
+        $response->assertDontSee('amis-key-0123456789');
+        $response->assertDontSeeText('AMIS API key');
+    }
+
+    public function test_shows_both_api_keys_to_an_admin(): void
+    {
+        ApiClient::factory()->forSide(UserSide::Lcis)->withToken('lcis-key-0123456789')->create();
+        ApiClient::factory()->forSide(UserSide::Amis)->withToken('amis-key-0123456789')->create();
+
+        $response = $this->actingAs(User::factory()->admin()->create())->get('/guide');
+
+        $response->assertSeeInOrder(['LCIS API key', 'lcis-key-0123456789', 'AMIS API key', 'amis-key-0123456789']);
+    }
+
+    public function test_hides_revoked_keys_and_says_when_a_side_has_none(): void
+    {
+        ApiClient::factory()->forSide(UserSide::Amis)->withToken('amis-key-0123456789')->revoked()->create();
+
+        $response = $this->actingAs(User::factory()->amis()->create())->get('/guide');
+
+        $response->assertDontSee('amis-key-0123456789');
+        $response->assertSeeText('No API key has been set up for AMIS yet. Ask an admin.');
     }
 
     public function test_is_linked_from_the_navigation(): void

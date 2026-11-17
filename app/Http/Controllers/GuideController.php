@@ -3,19 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Enums\MatchStatus;
+use App\Enums\UserSide;
+use App\Models\ApiClient;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
  * How to use the app. Rule names, weights and points come from config/matching.php, so the
- * guide stays right when the scoring is tuned.
+ * guide stays right when the scoring is tuned. The API section shows the key of the user's own
+ * side; admins see both.
  */
 class GuideController extends Controller
 {
     public function __invoke(Request $request): View
     {
+        $side = $request->user()->side;
+        $apiSides = $side === UserSide::Admin ? [UserSide::Lcis, UserSide::Amis] : [$side];
+
         return view('guide', [
-            'side' => $request->user()->side,
+            'side' => $side,
+            'apiSides' => $apiSides,
+            'apiClients' => ApiClient::shownInGuideFor($apiSides),
             'rules' => collect(config('matching.rules'))
                 ->map(fn (float $weight, string $ruleClass): array => [
                     'label' => app($ruleClass)->label(),

@@ -17,6 +17,7 @@ return [
         'review' => 'Matches that need review',
         'list' => 'Matches list and export',
         'admin' => 'Admin tasks',
+        'api' => 'Matches API',
         'tips' => 'Questions and tips',
     ],
 
@@ -96,6 +97,21 @@ return [
         'sync' => 'Sync: shows the last run of each source and any error (e.g. an expired AMIS key). Run now starts a sync immediately; it also runs every night.',
         'unmatch' => 'Unmatch: on a matched pair, if it was wrong. A reason is required.',
         'review' => 'Review: My queue for admins lists matches flagged Needs review.',
+    ],
+
+    'api' => [
+        'p1' => 'Your system can read the confirmed matches from this app. Send your side’s API key as a bearer token.',
+        'key' => ':side API key',
+        'no_key' => 'No API key has been set up for :side yet. Ask an admin.',
+        'select_hint' => 'Click the key to select it, then copy it.',
+        'endpoint' => 'Address',
+        'example' => 'Example',
+        'notes' => [
+            'Only confirmed (matched) pairs are returned, newest first, 100 per page. Use page and per_page (up to 500) to page through them.',
+            'A pair that is unmatched later disappears from the list, so fetch the full list each time and replace your copy.',
+            'Link records by lcis.project_id and amis.contract_id, not by the AMIS contract number.',
+            'Keep the key secret. If it leaks, ask an admin to revoke it and create a new one.',
+        ],
     ],
 
     'tips' => [
